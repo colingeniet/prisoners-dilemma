@@ -1,26 +1,30 @@
 # generic Makefile for C
 
+.PHONY: default
+default: all
 
 ### Main Settings
 CC = gcc
 CFLAGS = -Wall
-LIBS =
-LIBFLAGS = `pkg-config --cflags $(LIBS)`
-LIBLINKS = `pkg-config --libs $(LIBS)`
 
+PROGRAMS = iterated_prisoner
+SRCSFILE = iterated_prisoner.c strategies.c latex_output.c
 
-PROGRAM = iterated_prisoner 
-SRCS = iterated_prisoner.c strategies.c latex_output.c
-OBJS = $(SRCS:.c=.o)
+iterated_prisoner : $(addprefix $(OBJSDIR),iterated_prisoner.o strategies.o latex_output.o)
 
 ###
+
+SRCSDIR = src/
+SRCS = $(addprefix $(SRCSDIR),$(SRCSFILE))
+OBJSDIR = .objs/
+OBJSFILE = $(SRCSFILE:.c=.o)
+OBJS = $(addprefix $(OBJSDIR),$(OBJSFILE))
+
+VPATH = $(SRCSDIR):$(OBJSDIR)
 
 DEPFILE = .depend
 DEPFLAGS = -MM
 
-
-.PHONY: default
-default: all
 
 .PHONY: all
 ifeq ($(wildcard $(DEPFILE)), )
@@ -29,16 +33,21 @@ all: $(DEPFILE)
 else
 include $(DEPFILE)
 
-all: $(PROGRAM)
+all: $(PROGRAMS)
 endif
 
 
 
 
-$(PROGRAM) : $(OBJS)
+$(OBJS) : | $(OBJSDIR)
+
+$(OBJSDIR) :
+	mkdir $(OBJSDIR)
+
+$(PROGRAMS) :
 	$(CC) $(CFLAGS) $(LIBFLAGS) $^ -o $@ $(LIBLINKS)
 
-%.o : %.c
+$(OBJSDIR)%.o : %.c
 	$(CC) $(CFLAGS) $(LIBFLAGS) -c $< -o $@
 
 
@@ -50,4 +59,5 @@ $(DEPFILE) : $(SRCS)
 
 .PHONY: clean
 clean:
-	-rm $(PROGRAM) $(OBJS) $(DEPFILE)
+	-rm $(PROGRAMS) $(OBJS) $(DEPFILE)
+	-rmdir $(OBJSDIR)
