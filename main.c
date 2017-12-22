@@ -2,9 +2,15 @@
 #include <stdlib.h>
 #include "strategies.h"
 
+#define latex_output "iterated_dilemma.tex"
+#define pdf_output "iterated_dilemma.pdf"
+#define pdf_viewer "evince"
+
 int main(int argc, char **argv) {
     int ret, n;
     int **results = NULL;
+    FILE *output = NULL;
+
     if(argc != 2) {
         fprintf(stderr, "usage : dileme1 <n>\n");
         ret = 1;
@@ -29,6 +35,17 @@ int main(int argc, char **argv) {
     }
 
     try_strategies(strategies, N_STRATEGIES, n, default_rewards, results);
+
+    output = fopen(latex_output, "w");
+    if(!output) {
+        perror("main : ");
+        ret = 1;
+        goto end;
+    }
+
+    print_result(output, N_STRATEGIES, results, strategies);
+    compile_latex(latex_output);
+    open_pdf(evince, pdf_output);
 
     end:
     if(results) {
