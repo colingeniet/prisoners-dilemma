@@ -38,10 +38,19 @@ struct strategy_entry {
     const char *name;
 };
 
+/** standard strategies */
 struct strategy_entry strategies[N_STRATEGIES];
 
+/** standard rewards */
+int default_rewards[2][2];
 
+/** run two strategies for n steps. returns cumulated gains in res1 and res2 */
 int iterate_dilemma(strategy player1, strategy player2, int n,
                     int rewards[2][2], int *res1, int *res2);
+
+/** run all strategies against each other. returns cumulated gains in results */
+int try_strategies(struct strategy_entry *strategies, int n_strategies, int n,
+                   int rewards[2][2], int **results);
+
 
 #endif /* end of include guard: STRATEGIES_H_INCLUDED */

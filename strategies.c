@@ -2,65 +2,53 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/** always cooperates */
 action nice(int n_played, action *hist, int n_coop) {
     return COOP;
 }
 
-/** always defects */
 action bad(int n_played, action *hist, int n_coop) {
     return DEFECTS;
 }
 
-/** cooperates on first game, then plays same as adversary last action */
 action give_give(int n_played, action *hist, int n_coop) {
     return n_played < 1 || hist[n_played-1];
 }
 
-/** defects on first game, then plays same as adversary last action */
 action distrustful(int n_played, action *hist, int n_coop) {
     return n_played >= 1 && hist[n_played-1];
 }
 
-/** cooperates unless the adversary defected in one of the last two  games */
 action give_give_hard(int n_played, action *hist, int n_coop) {
     return (n_played < 1 || hist[n_played-1])
         && (n_played < 2|| hist[n_played-2]);
 }
 
-/** cooperates as long as the adversary never defects */
 action spiteful(int n_played, action *hist, int n_coop) {
     return n_coop == n_played;
 }
 
-/** cooperates, cooperates, defects, ... */
 action period_nice(int n_played, action *hist, int n_coop) {
     return n_played%3 != 2;
 }
 
-/** defects, defects, cooperates, ... */
 action period_bad(int n_played, action *hist, int n_coop)  {
     return n_played%3 == 2;
 }
 
-/** plays the adversary most played action, cooperates by default */
 action majority_nice(int n_played, action *hist, int n_coop) {
     return 2*n_coop >= n_played;
 }
 
-/** plays the adversary most played action, defects by default */
 action majority_bad(int n_played, action *hist, int n_coop) {
     return 2*n_coop > n_played;
 }
 
-/** plays defects, cooperates, cooperates,
-    then if the adversary cooperated on game 2 and 3 always defects
-         else same as give_give */
 action poll(int n_played, action *hist, int n_coop) {
     if(n_played < 3) return !(n_played%3);
     else if(hist[2] && hist[3]) return DEFECTS;
     else return hist[n_played-1];
 }
+
 
 struct strategy_entry strategies[N_STRATEGIES] = {
    {nice, "gentille"},
@@ -76,7 +64,10 @@ struct strategy_entry strategies[N_STRATEGIES] = {
    {poll, "sondeur"}
 };
 
+int default_rewards[2][2] = {{1, 5}, {0, 3}};
 
+
+/** run two strategies for n steps. returns cumulated gains in res1 and res2 */
 int iterate_dilemma(strategy player1, strategy player2, int n,
                     int rewards[2][2], int *res1, int *res2) {
     int reward1=0, reward2=0;
@@ -86,7 +77,7 @@ int iterate_dilemma(strategy player1, strategy player2, int n,
     hist1 = (action*)malloc(n*sizeof(action));
     hist2 = (action*)malloc(n*sizeof(action));
     if(!hist1 || !hist2) {
-        perror("failed to allocate memory\n");
+        perror("iterate_dilemma : failed to allocate memory\n");
         result=-1;
         goto end;
     }
@@ -108,4 +99,23 @@ int iterate_dilemma(strategy player1, strategy player2, int n,
     free(hist1);
     free(hist2);
     return result;
+}
+
+
+int try_strategies(struct strategy_entry *strategies, int n_strategies, int n,
+                   int rewards[2][2], int **results) {
+    if(!results) {
+        perror("try_strategies : result array not allocated\n");
+        return -1;
+    }
+
+    for(int i=0; i<n_strategies; i++) {
+        for(int j=0; j<n_strategies; j++) {
+            if(iterate_dilemma(strategies[i].strat, strategies[j].strat, n,
+                               rewards, &results[i][j], NULL)) {
+                results[i][j] = 0;
+            }
+        }
+    }
+    return 0;
 }
