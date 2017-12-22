@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "strategies.h"
+#include "latex_output.h"
 
 #define latex_output "iterated_dilemma.tex"
 #define pdf_output "iterated_dilemma.pdf"
@@ -45,7 +46,7 @@ int main(int argc, char **argv) {
 
     print_result(output, N_STRATEGIES, results, strategies);
     compile_latex(latex_output);
-    open_pdf(evince, pdf_output);
+    open_pdf(pdf_viewer, pdf_output);
 
     end:
     if(results) {

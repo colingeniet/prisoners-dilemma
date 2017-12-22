@@ -14,13 +14,13 @@ int sum(int *ary, int n)
 int print_result(FILE *f, int n_strategy, int **points, struct strategy_entry *strat) {
     if(!f || !points || !strat)
         return -1;
-     fprintf(f, "\\begin{tabular}{| ");
+    fprintf(f, "\\begin{tabular}{| ");
 
     for(int i = 0; i < n_strategy + 1; i++)
         fprintf(f, " c |");
     fprintf(f, "}\n");
 
-    for(int i = 0; i < n_strategy + 1; i++)
+    for(int i = 0; i < n_strategy; i++)
         fprintf(f, "& %s ", strat[i].name);
     fprintf(f, "\\\\ \\hline \n");
 
@@ -31,6 +31,7 @@ int print_result(FILE *f, int n_strategy, int **points, struct strategy_entry *s
         }
         fprintf(f, "\\\\ \\hline \n");
     }
+    fprintf(f, "\\end{tabular}");
     return 0;
 }
 
@@ -53,6 +54,7 @@ int print_cumulated_result(FILE *f, int n_strategy, int *points, struct strategy
     }
     fprintf(f, "%d", sum(points, n_strategy));
     fprintf(f, "\\\\ \\hline");
+    fprintf(f, "\\end{tabular}");
     return 0;
 }
 

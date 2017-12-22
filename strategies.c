@@ -52,7 +52,7 @@ action poll(int n_played, action *hist, int n_coop) {
 
 struct strategy_entry strategies[N_STRATEGIES] = {
    {nice, "gentille"},
-   {bad, "méchant"},
+   {bad, "méchante"},
    {give_give, "donnant-donnant"},
    {distrustful, "méfiante"},
    {give_give_hard, "donnant-donnant-dur"},
