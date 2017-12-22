@@ -9,8 +9,8 @@ LIBFLAGS = `pkg-config --cflags $(LIBS)`
 LIBLINKS = `pkg-config --libs $(LIBS)`
 
 
-PROGRAM = dileme1
-SRCS = main.c strategies.c latex_output.c
+PROGRAM = iterated_prisoner 
+SRCS = iterated_prisoner.c strategies.c latex_output.c
 OBJS = $(SRCS:.c=.o)
 
 ###

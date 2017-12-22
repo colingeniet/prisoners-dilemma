@@ -1,6 +1,7 @@
 #ifndef STRATEGIES_H_INCLUDED
 #define STRATEGIES_H_INCLUDED
 
+/* actions are booleans, cooperating is 'true' */
 typedef char action;
 #define COOP 1
 #define DEFECTS 0

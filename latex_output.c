@@ -79,8 +79,8 @@ int open_pdf(const char *cmd_name, const char *path)
     if(!cmd)
         return -1;
     strcpy(cmd, cmd_name);
-    cmd[len + 1] = ' ';
-    cmd[len] = 0;
+    cmd[len] = ' ';
+    cmd[len + 1] = 0;
     strcat(cmd, path);
     return system(cmd);
 }
