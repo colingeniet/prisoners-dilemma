@@ -3,14 +3,14 @@
 
 ### Main Settings
 CC = gcc
-CFLAGS = -Wall 
+CFLAGS = -Wall
 LIBS =
 LIBFLAGS = `pkg-config --cflags $(LIBS)`
 LIBLINKS = `pkg-config --libs $(LIBS)`
 
 
-PROGRAM =
-SRCS = 
+PROGRAM = dileme1
+SRCS = main.c strategies.c
 OBJS = $(SRCS:.c=.o)
 
 ###
@@ -51,4 +51,3 @@ $(DEPFILE) : $(SRCS)
 .PHONY: clean
 clean:
 	-rm $(PROGRAM) $(OBJS) $(DEPFILE)
-
