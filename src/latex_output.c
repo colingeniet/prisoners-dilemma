@@ -97,7 +97,9 @@ int compile_latex(const char *path)
         return -1;
     strcpy(cmd, "pdflatex ");
     strcat(cmd, path);
-    return system(cmd);
+    int ret = system(cmd);
+    free(cmd);
+    return ret;
 }
 
 int open_pdf(const char *cmd_name, const char *path)
@@ -112,5 +114,7 @@ int open_pdf(const char *cmd_name, const char *path)
     cmd[len] = ' ';
     cmd[len + 1] = 0;
     strcat(cmd, path);
-    return system(cmd);
+    int ret = system(cmd);
+    free(cmd);
+    return ret;
 }
