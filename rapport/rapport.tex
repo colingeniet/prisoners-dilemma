@@ -1,4 +1,4 @@
-\documentclass[11pt]{article}
+\documentclass[10pt]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -13,15 +13,20 @@
 \section*{Introduction}
 
 \section{Dilemme du prisonnier itéré}
-Compilation / exécution :
+\subsection{Usage}
 \begin{verbatim}
 $ make iterated_prisoner
 $ ./iterated_prisoner <iterations>
 \end{verbatim}
 
+Ce programme simule toutes les combinaisons des 11 stratégies standard pour \verb|<iterations>| itérations,
+et crée \verb|iterated_dilemma.tex| contenant un tableau des scores cumulés.
+
+Le programme tente de compiler le fichier \LaTeX{} avec \verb|pdflatex|, et de l'afficher avec \verb|evince|
+(modifiable dans \verb|iterated_prisoner.c|).
+
 \section{Simulation écologique}
 
 \section{Simulation distribuée}
-
 
 \end{document}
