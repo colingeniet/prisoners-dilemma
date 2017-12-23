@@ -27,11 +27,11 @@ action spiteful(int n_played, action *hist, int n_coop) {
     return n_coop == n_played;
 }
 
-action period_nice(int n_played, action *hist, int n_coop) {
+action periodic_nice(int n_played, action *hist, int n_coop) {
     return n_played%3 != 2;
 }
 
-action period_bad(int n_played, action *hist, int n_coop)  {
+action periodic_bad(int n_played, action *hist, int n_coop)  {
     return n_played%3 == 2;
 }
 
@@ -57,8 +57,8 @@ struct strategy_entry strategies[N_STRATEGIES] = {
    {distrustful, "méfiante", "méf", "m"},
    {give_give_hard, "donnant-donnant-dur", "d-d dur", "ddd"},
    {spiteful, "rancunière", "ranc", "r"},
-   {period_nice, "périodique gentille", "p gent", "pg"},
-   {period_bad, "périodique méchante", "p méch", "pm"},
+   {periodic_nice, "périodique gentille", "p gent", "pg"},
+   {periodic_bad, "périodique méchante", "p méch", "pm"},
    {majority_nice, "majorité mou", "maj mou", "mm"},
    {majority_bad, "majorité dur", "maj dur", "md"},
    {poll, "sondeur", "sond", "s"}
@@ -82,6 +82,7 @@ int iterate_dilemma(strategy player1, strategy player2, int n,
     }
 
     for(int i=0; i<n; i++) {
+        /* actions are 1=cooperates, 0=defects */
         action act1 = player1(i, hist2, n_coop2);
         action act2 = player2(i, hist1, n_coop1);
         n_coop1 += act1; n_coop2 += act2;
