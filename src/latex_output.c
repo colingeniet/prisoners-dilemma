@@ -99,7 +99,8 @@ int compile_latex(const char *path)
     strcat(cmd, path);
     int ret = system(cmd);
     free(cmd);
-    return ret;
+    if(ret == -1) return -1;
+    else return WEXITSTATUS(ret);
 }
 
 int open_pdf(const char *cmd_name, const char *path)
@@ -116,5 +117,6 @@ int open_pdf(const char *cmd_name, const char *path)
     strcat(cmd, path);
     int ret = system(cmd);
     free(cmd);
-    return ret;
+    if(ret == -1) return -1;
+    else return WEXITSTATUS(ret);
 }
