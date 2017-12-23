@@ -43,10 +43,11 @@ int main(int argc, char **argv) {
         ret = 1;
         goto end;
     }
+    print_latex(output, N_STRATEGIES, results, strategies);
+    fclose(output);
 
-    print_cumulated_result(output, N_STRATEGIES, results, strategies);
-    compile_latex(latex_output);
-    open_pdf(pdf_viewer, pdf_output);
+    if(!(ret = compile_latex(latex_output)))
+        ret = open_pdf(pdf_viewer, pdf_output);
 
     end:
     if(results) {
