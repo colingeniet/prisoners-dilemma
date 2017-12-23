@@ -42,10 +42,10 @@ action poll(int n_played, action *hist, int n_coop);
 
 /** Group up a strategy with various names for display purposes */
 struct strategy_entry {
-    strategy strat;
-    const char *name;
-    const char *short_name;
-    const char *very_short_name;
+    strategy strat;                 /**< strategy function */
+    const char *name;               /**< long name */
+    const char *short_name;         /**< short name */
+    const char *very_short_name;    /**< very short name */
 };
 
 /** number of standard strategies */

@@ -26,7 +26,7 @@ et crée \verb|iterated_dilemma.tex| contenant un tableau des scores cumulés.
 Voir \ref{strattable} pour un exemple de résultat.
 
 Le programme tente de compiler le fichier \LaTeX{} avec \verb|pdflatex|, et de l'afficher avec \verb|evince|
-(modifiable dans \verb|iterated_prisoner.c|).
+(modifiable dans \verb|latex_output.h|).
 
 \begin{table}
 \caption[Comparaison des stratégies]{Comparaisons des stratégies sur le dilemme du prisonnier itéré}
@@ -35,7 +35,7 @@ Le programme tente de compiler le fichier \LaTeX{} avec \verb|pdflatex|, et de l
 \rowcolors{2}{white}{lightgray}
 \begin{tabular}{|c|cccccccccccc|}
 \hline
-& g & m & dd & m & ddd & r & pg & pm & mm & md & s & Total \\ \hline 
+& g & m & dd & m & ddd & r & pg & pm & mm & md & s & Total \\ \hline
 gent & 3000& 0& 3000& 2997& 3000& 3000& 2001& 999& 3000& 2997& 3& 23997\\
 méch & 5000& 1000& 1004& 1000& 1004& 1004& 3668& 2332& 1004& 1000& 1004& 19020\\
 d-d & 3000& 999& 3000& 2500& 3000& 3000& 2667& 1998& 3000& 2500& 1001& 26665\\
