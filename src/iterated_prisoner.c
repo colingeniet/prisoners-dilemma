@@ -5,7 +5,6 @@
 
 #define latex_output "iterated_dilemma.tex"
 #define pdf_output "iterated_dilemma.pdf"
-#define pdf_viewer "evince"
 
 int main(int argc, char **argv) {
     int ret, n;
@@ -47,7 +46,7 @@ int main(int argc, char **argv) {
     fclose(output);
 
     if(!(ret = compile_latex(latex_output)))
-        ret = open_pdf(pdf_viewer, pdf_output);
+        ret = open_pdf(pdf_output);
 
     end:
     if(results) {

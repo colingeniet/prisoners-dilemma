@@ -92,10 +92,13 @@ int compile_latex(const char *path)
 {
     if(!path)
         return -1;
-    char *cmd = malloc(strlen(path) + 10);
+    int len = strlen(latex_prog);
+    char *cmd = malloc(strlen(path) + len + 2);
     if(!cmd)
         return -1;
-    strcpy(cmd, "pdflatex ");
+    strcpy(cmd, latex_prog);
+    cmd[len] = ' ';
+    cmd[len + 1] = 0;
     strcat(cmd, path);
     int ret = system(cmd);
     free(cmd);
@@ -103,15 +106,15 @@ int compile_latex(const char *path)
     else return WEXITSTATUS(ret);
 }
 
-int open_pdf(const char *cmd_name, const char *path)
+int open_pdf(const char *path)
 {
-    if(!path || !cmd_name)
+    if(!path)
         return -1;
-    int len = strlen(cmd_name);
+    int len = strlen(pdf_viewer);
     char *cmd = malloc(strlen(path) + len + 2);
     if(!cmd)
         return -1;
-    strcpy(cmd, cmd_name);
+    strcpy(cmd, pdf_viewer);
     cmd[len] = ' ';
     cmd[len + 1] = 0;
     strcat(cmd, path);
