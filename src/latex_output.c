@@ -14,46 +14,53 @@ int sum(int *ary, int n)
 int print_result(FILE *f, int n_strategy, int **points, struct strategy_entry *strat) {
     if(!f || !points || !strat)
         return -1;
-    fprintf(f, "\\begin{tabular}{| ");
-
-    for(int i = 0; i < n_strategy + 1; i++)
-        fprintf(f, " c |");
-    fprintf(f, "}\n");
+    fprintf(f, "\\rowcolors{2}{white}{gray}\n");
+    fprintf(f, "\\begin{tabular}{|c|");
 
     for(int i = 0; i < n_strategy; i++)
-        fprintf(f, "& %s ", strat[i].name);
+        fprintf(f, "c");
+    fprintf(f, "|}\n\\hline\n");
+
+    for(int i = 0; i < n_strategy; i++)
+        fprintf(f, "& %s ", strat[i].very_short_name);
     fprintf(f, "\\\\ \\hline \n");
 
     for(int i = 0; i < n_strategy; i++) {
-        fprintf(f, "%s ", strat[i].name);
+        fprintf(f, "%s ", strat[i].short_name);
         for(int j = 0; j < n_strategy; j++) {
             fprintf(f, "& %d", points[i][j]);
         }
-        fprintf(f, "\\\\ \\hline \n");
+        fprintf(f, "\\\\\n");
     }
+    fprintf(f, "\\hline\n");
     fprintf(f, "\\end{tabular}");
     return 0;
 }
 
-int print_cumulated_result(FILE *f, int n_strategy, int *points, struct strategy_entry *strat) {
+int print_cumulated_result(FILE *f, int n_strategy, int **points, struct strategy_entry *strat) {
     if(!f || !points || !strat)
         return -1;
-    fprintf(f, "\\begin{tabular}{| ");
+    fprintf(f, "\\rowcolors{2}{white}{lightgray}\n");
+    fprintf(f, "\\begin{tabular}{|c|");
+
+    for(int i = 0; i < n_strategy+1; i++)
+        fprintf(f, "c");
+    fprintf(f, "|}\n\\hline\n");
 
     for(int i = 0; i < n_strategy; i++)
-        fprintf(f, " c |");
-    fprintf(f, "}\n");
-
-    for(int i = 0; i < n_strategy; i++)
-        fprintf(f, "%s &", strat[i].name);
-    fprintf(f, " Total ");
+        fprintf(f, "& %s ", strat[i].very_short_name);
+    fprintf(f, "& Total ");
     fprintf(f, "\\\\ \\hline \n");
 
     for(int i = 0; i < n_strategy; i++) {
-        fprintf(f, "%d &", points[i]);
+        fprintf(f, "%s ", strat[i].short_name);
+        for(int j = 0; j < n_strategy; j++) {
+            fprintf(f, "& %d", points[i][j]);
+        }
+        fprintf(f, "& %d", sum(points[i], n_strategy));
+        fprintf(f, "\\\\\n");
     }
-    fprintf(f, "%d", sum(points, n_strategy));
-    fprintf(f, "\\\\ \\hline");
+    fprintf(f, "\\hline\n");
     fprintf(f, "\\end{tabular}");
     return 0;
 }

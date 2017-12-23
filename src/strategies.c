@@ -51,17 +51,17 @@ action poll(int n_played, action *hist, int n_coop) {
 
 
 struct strategy_entry strategies[N_STRATEGIES] = {
-   {nice, "gentille"},
-   {bad, "méchante"},
-   {give_give, "donnant-donnant"},
-   {distrustful, "méfiante"},
-   {give_give_hard, "donnant-donnant-dur"},
-   {spiteful, "rancunière"},
-   {period_nice, "périodique gentille"},
-   {period_bad, "périodique gentille"},
-   {majority_nice, "majorité mou"},
-   {majority_bad, "majorité dur"},
-   {poll, "sondeur"}
+   {nice, "gentille", "gent", "g"},
+   {bad, "méchante", "méch", "m"},
+   {give_give, "donnant-donnant", "d-d", "dd"},
+   {distrustful, "méfiante", "méf", "m"},
+   {give_give_hard, "donnant-donnant-dur", "d-d dur", "ddd"},
+   {spiteful, "rancunière", "ranc", "r"},
+   {period_nice, "périodique gentille", "p gent", "pg"},
+   {period_bad, "périodique méchante", "p méch", "pm"},
+   {majority_nice, "majorité mou", "maj mou", "mm"},
+   {majority_bad, "majorité dur", "maj dur", "md"},
+   {poll, "sondeur", "sond", "s"}
 };
 
 int default_rewards[2][2] = {{1, 5}, {0, 3}};

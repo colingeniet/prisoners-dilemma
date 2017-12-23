@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
         goto end;
     }
 
-    print_result(output, N_STRATEGIES, results, strategies);
+    print_cumulated_result(output, N_STRATEGIES, results, strategies);
     compile_latex(latex_output);
     open_pdf(pdf_viewer, pdf_output);
 

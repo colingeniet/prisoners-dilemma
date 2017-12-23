@@ -37,6 +37,8 @@ action poll(int n_played, action *hist, int n_coop);
 struct strategy_entry {
     strategy strat;
     const char *name;
+    const char *short_name;
+    const char *very_short_name;
 };
 
 /** standard strategies */

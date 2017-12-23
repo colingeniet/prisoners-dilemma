@@ -8,6 +8,9 @@
 int print_result(FILE *f, int n_strategies, int **results,
                  struct strategy_entry *strategies);
 
+int print_cumulated_result(FILE *f, int n_strategies, int **results,
+                           struct strategy_entry *strategies);
+
 int print_latex(FILE *f, int n_strategies, int **results,
                 struct strategy_entry *strategies);
 
