@@ -23,30 +23,48 @@ $ ./iterated_prisoner <iterations>
 
 Ce programme simule toutes les combinaisons des 11 stratégies standard pour \verb|<iterations>| itérations,
 et crée \verb|iterated_dilemma.tex| contenant un tableau des scores cumulés.
-Voir \ref{strattable} pour un exemple de résultat.
+Voir \ref{strat_table} pour un exemple de résultat.
 
 Le programme tente de compiler le fichier \LaTeX{} avec \verb|pdflatex|, et de l'afficher avec \verb|evince|
 (modifiable dans \verb|latex_output.h|).
 
 \begin{table}
 \caption[Comparaison des stratégies]{Comparaisons des stratégies sur le dilemme du prisonnier itéré}
-\label{strattable}
+\label{strat_table}
 \begin{center}
 \rowcolors{2}{white}{lightgray}
-\begin{tabular}{|c|cccccccccccc|}
+\begin{tabular}{|c|cccccc|}
 \hline
-& g & m & dd & m & ddd & r & pg & pm & mm & md & s & Total \\ \hline
-gent & 3000& 0& 3000& 2997& 3000& 3000& 2001& 999& 3000& 2997& 3& 23997\\
-méch & 5000& 1000& 1004& 1000& 1004& 1004& 3668& 2332& 1004& 1000& 1004& 19020\\
-d-d & 3000& 999& 3000& 2500& 3000& 3000& 2667& 1998& 3000& 2500& 1001& 26665\\
-méf & 3002& 1000& 2500& 1000& 1003& 1003& 2669& 1999& 2500& 1000& 1003& 18679\\
-d-d dur & 3000& 999& 3000& 1003& 3000& 3000& 3331& 2331& 3000& 1003& 1001& 24668\\
-ranc & 3000& 999& 3000& 1003& 3000& 3000& 3663& 2331& 3000& 1003& 1001& 25000\\
-p gent & 3666& 333& 2667& 2664& 1671& 343& 2334& 1665& 3666& 3663& 2660& 25332\\
-p méch & 4334& 667& 2003& 1999& 671& 671& 3335& 1666& 671& 667& 1999& 18683\\
-maj mou & 3000& 999& 3000& 2500& 3000& 3000& 2001& 2331& 3000& 2500& 1000& 26331\\
-maj dur & 3002& 1000& 2500& 1000& 1003& 1003& 2003& 2332& 2500& 1000& 1003& 18346\\
-sond & 4996& 999& 1006& 1003& 1006& 1006& 2670& 1998& 2503& 1003& 1002& 19192\\
+& gent & méch & d-d & méf & d-d dur & ranc \\ \hline
+gentille & 3000& 0& 3000& 2997& 3000& 3000\\
+méchante & 5000& 1000& 1004& 1000& 1004& 1004\\
+donnant-donnant & 3000& 999& 3000& 2500& 3000& 3000\\
+méfiante & 3002& 1000& 2500& 1000& 1003& 1003\\
+donnant-donnant-dur & 3000& 999& 3000& 1003& 3000& 3000\\
+rancunière & 3000& 999& 3000& 1003& 3000& 3000\\
+périodique gentille & 3666& 333& 2667& 2664& 1671& 343\\
+périodique méchante & 4334& 667& 2003& 1999& 671& 671\\
+majorité mou & 3000& 999& 3000& 2500& 3000& 3000\\
+majorité dur & 3002& 1000& 2500& 1000& 1003& 1003\\
+sondeur & 4996& 999& 1006& 1003& 1006& 1006\\
+\hline
+\end{tabular}
+\\
+\rowcolors{2}{white}{lightgray}
+\begin{tabular}{|c|cccccc|}
+\hline
+& p gent & p méch & maj mou & maj dur & sond & total \\ \hline
+gentille & 2001& 999& 3000& 2997& 3& 23997\\
+méchante & 3668& 2332& 1004& 1000& 1004& 19020\\
+donnant-donnant & 2667& 1998& 3000& 2500& 1001& 26665\\
+méfiante & 2669& 1999& 2500& 1000& 1003& 18679\\
+donnant-donnant-dur & 3331& 2331& 3000& 1003& 1001& 24668\\
+rancunière & 3663& 2331& 3000& 1003& 1001& 25000\\
+périodique gentille & 2334& 1665& 3666& 3663& 2660& 25332\\
+périodique méchante & 3335& 1666& 671& 667& 1999& 18683\\
+majorité mou & 2001& 2331& 3000& 2500& 1000& 26331\\
+majorité dur & 2003& 2332& 2500& 1000& 1003& 18346\\
+sondeur & 2670& 1998& 2503& 1003& 1002& 19192\\
 \hline
 \end{tabular}
 \end{center}
