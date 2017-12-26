@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 
+
+#define MAX_TABLE_COLUMNS 6
+
 int sum(int *ary, int n)
 {
     int s = 0;
@@ -14,54 +17,74 @@ int sum(int *ary, int n)
 int print_result(FILE *f, int n_strategy, int **points, struct strategy_entry *strat) {
     if(!f || !points || !strat)
         return -1;
-    fprintf(f, "\\rowcolors{2}{white}{gray}\n");
-    fprintf(f, "\\begin{tabular}{|c|");
 
-    for(int i = 0; i < n_strategy; i++)
-        fprintf(f, "c");
-    fprintf(f, "|}\n\\hline\n");
+    for(int table=0; table < n_strategy; table += MAX_TABLE_COLUMNS) {
+        int limit = n_strategy<table+MAX_TABLE_COLUMNS ?
+                        n_strategy : table+MAX_TABLE_COLUMNS;
 
-    for(int i = 0; i < n_strategy; i++)
-        fprintf(f, "& %s ", strat[i].very_short_name);
-    fprintf(f, "\\\\ \\hline \n");
+        fprintf(f, "\\rowcolors{2}{white}{gray}\n");
+        fprintf(f, "\\begin{tabular}{|c|");
 
-    for(int i = 0; i < n_strategy; i++) {
-        fprintf(f, "%s ", strat[i].short_name);
-        for(int j = 0; j < n_strategy; j++) {
-            fprintf(f, "& %d", points[i][j]);
+        for(int i = table; i < limit; i++)
+            fprintf(f, "c");
+        fprintf(f, "|}\n\\hline\n");
+
+        for(int i = table; i < limit; i++)
+            fprintf(f, "& %s ", strat[i].short_name);
+        fprintf(f, "\\\\ \\hline \n");
+
+        for(int i = 0; i < n_strategy; i++) {
+            fprintf(f, "%s ", strat[i].name);
+            for(int j = table; j<limit; j++) {
+                fprintf(f, "& %d", points[i][j]);
+            }
+            fprintf(f, "\\\\\n");
         }
+        fprintf(f, "\\hline\n");
+        fprintf(f, "\\end{tabular}\n");
         fprintf(f, "\\\\\n");
     }
-    fprintf(f, "\\hline\n");
-    fprintf(f, "\\end{tabular}\n");
     return 0;
 }
 
 int print_cumulated_result(FILE *f, int n_strategy, int **points, struct strategy_entry *strat) {
     if(!f || !points || !strat)
         return -1;
-    fprintf(f, "\\rowcolors{2}{white}{lightgray}\n");
-    fprintf(f, "\\begin{tabular}{|c|");
 
-    for(int i = 0; i < n_strategy+1; i++)
-        fprintf(f, "c");
-    fprintf(f, "|}\n\\hline\n");
 
-    for(int i = 0; i < n_strategy; i++)
-        fprintf(f, "& %s ", strat[i].very_short_name);
-    fprintf(f, "& Total ");
-    fprintf(f, "\\\\ \\hline \n");
+    for(int table=0; table <= n_strategy; table += MAX_TABLE_COLUMNS) {
+        int limit = n_strategy < table+MAX_TABLE_COLUMNS ?
+                        n_strategy+1 : table+MAX_TABLE_COLUMNS;
 
-    for(int i = 0; i < n_strategy; i++) {
-        fprintf(f, "%s ", strat[i].short_name);
-        for(int j = 0; j < n_strategy; j++) {
-            fprintf(f, "& %d", points[i][j]);
+        fprintf(f, "\\rowcolors{2}{white}{lightgray}\n");
+        fprintf(f, "\\begin{tabular}{|c|");
+
+        for(int i = table; i < limit; i++)
+            fprintf(f, "c");
+        fprintf(f, "|}\n\\hline\n");
+
+        for(int i = table; i < limit; i++) {
+            if(i == n_strategy)
+                fprintf(f, "& total ");
+            else
+                fprintf(f, "& %s ", strat[i].short_name);
         }
-        fprintf(f, "& %d", sum(points[i], n_strategy));
+        fprintf(f, "\\\\ \\hline \n");
+
+        for(int i = 0; i < n_strategy; i++) {
+            fprintf(f, "%s ", strat[i].name);
+            for(int j = table; j < limit; j++) {
+                if(j == n_strategy)
+                    fprintf(f, "& %d", sum(points[i], n_strategy));
+                else
+                    fprintf(f, "& %d", points[i][j]);
+            }
+            fprintf(f, "\\\\\n");
+        }
+        fprintf(f, "\\hline\n");
+        fprintf(f, "\\end{tabular}\n");
         fprintf(f, "\\\\\n");
     }
-    fprintf(f, "\\hline\n");
-    fprintf(f, "\\end{tabular}\n");
     return 0;
 }
 
@@ -73,9 +96,11 @@ void print_latex_preamble(FILE *f) {
     fprintf(f, "\\usepackage[french]{babel}\n");
     fprintf(f, "\\usepackage[table]{xcolor}\n\n");
     fprintf(f, "\\begin{document}\n");
+    fprintf(f, "\\begin{center}\n");
 }
 
 void print_latex_end(FILE *f) {
+    fprintf(f, "\\end{center}\n");
     fprintf(f, "\\end{document}\n");
 }
 
