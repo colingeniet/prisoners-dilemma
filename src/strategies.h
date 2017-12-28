@@ -61,8 +61,10 @@ int default_rewards[2][2];
  * @param player2 strategy function for second player.
  * @param n the number of iterations.
  * @param rewards the array of rewards.
- * @param res1
- * @param res2
+ * @param res1 a location to place the cumulated score of player1.
+     Ignored if NULL.
+ * @param res2 a location to place the cumulated score of player2.
+     Ignored if NULL.
  * @return 0 on success, -1 on error. */
 int iterate_dilemma(strategy player1, strategy player2, int n,
                     int rewards[2][2], int *res1, int *res2);
@@ -72,11 +74,43 @@ int iterate_dilemma(strategy player1, strategy player2, int n,
  * @param n_strategies the size of strategies.
  * @param n the number of iterations.
  * @param rewards the array of rewards.
- * @param results an already allocated array.
- *  results[i][j] is filled with the score of strategy i versus strategy j
+ * @param results an already allocated array of size n_strategies*n_strategies.
+ *   results[i][j] is filled with the cumulated score
+ *   of strategy i versus strategy j.
  * @return 0 on success, -1 on error. */
-int try_strategies(struct strategy_entry *strategies, int n_strategies, int n,
-                   int rewards[2][2], int **results);
+int try_strategies(struct strategy_entry *strategies, int n_strategies,
+                   int n, int rewards[2][2], int **results);
+
+
+/** Run two strategies for n steps.
+ * Return the detailled scores for each step.
+ * @param player1 strategy function for first player.
+ * @param player2 strategy function for second player.
+ * @param n the number of iterations.
+ * @param rewards the array of rewards.
+ * @param res_array1 an already allocated array of size n.
+ *   res_array[i] is filled with the score of player1 at step i.
+ *   Ignored if NULL.
+ * @param res_array1 an already allocated array of size n.
+ *   res_array[i] is filled with the score of player2 at step i.
+ *   Ignored if NULL.
+ * @return 0 on success, -1 on error. */
+int iterate_dilemma_detail(strategy player1, strategy player2, int n,
+                           int rewards[2][2], int *res_array1, int *res_array2);
+
+/** Run all strategies against each other.
+ * Return the detailled scores for each combination.
+ * @param strategies an array of strategies.
+ * @param n_strategies the size of strategies.
+ * @param n the number of iterations.
+ * @param rewards the array of rewards.
+ * @param results an already allocated array of size n_strategies*n_strategies*n.
+ *   results[i][j][k] is filled with the score of strategy i
+ *   versus strategy j at step k.
+ * @return 0 on success, -1 on error. */
+int try_strategies_detail(struct strategy_entry *strategies, int n_strategies,
+                          int n, int rewards[2][2], int ***results);
+
 
 
 #endif /* end of include guard: STRATEGIES_H_INCLUDED */
