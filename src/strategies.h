@@ -60,7 +60,7 @@ int default_rewards[2][2];
  * @param player1 strategy function for first player.
  * @param player2 strategy function for second player.
  * @param n the number of iterations.
- * @param rewards the array of rewards.
+ * @param rewards the array of reward values.
  * @param res1 a location to place the cumulated score of player1.
      Ignored if NULL.
  * @param res2 a location to place the cumulated score of player2.
@@ -73,7 +73,7 @@ int iterate_dilemma(strategy player1, strategy player2, int n,
  * @param strategies an array of strategies.
  * @param n_strategies the size of strategies.
  * @param n the number of iterations.
- * @param rewards the array of rewards.
+ * @param rewards the array of reward values.
  * @param results an already allocated array of size n_strategies*n_strategies.
  *   results[i][j] is filled with the cumulated score
  *   of strategy i versus strategy j.
@@ -87,7 +87,7 @@ int try_strategies(struct strategy_entry *strategies, int n_strategies,
  * @param player1 strategy function for first player.
  * @param player2 strategy function for second player.
  * @param n the number of iterations.
- * @param rewards the array of rewards.
+ * @param rewards the array of reward values.
  * @param res_array1 an already allocated array of size n.
  *   res_array[i] is filled with the score of player1 at step i.
  *   Ignored if NULL.
@@ -103,7 +103,7 @@ int iterate_dilemma_detail(strategy player1, strategy player2, int n,
  * @param strategies an array of strategies.
  * @param n_strategies the size of strategies.
  * @param n the number of iterations.
- * @param rewards the array of rewards.
+ * @param rewards the array of reward values.
  * @param results an already allocated array of size n_strategies*n_strategies*n.
  *   results[i][j][k] is filled with the score of strategy i
  *   versus strategy j at step k.
