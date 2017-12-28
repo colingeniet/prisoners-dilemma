@@ -29,7 +29,7 @@ Le programme tente de compiler le fichier \LaTeX{} avec \verb|pdflatex|, et de l
 (modifiable dans \verb|latex_output.h|).
 
 \begin{table}
-\caption[Comparaison des stratégies]{Comparaisons des stratégies sur le dilemme du prisonnier itéré}
+\caption[Comparaison des stratégies]{Comparaisons des stratégies sur le dilemme du prisonnier itéré.}
 \label{strat_table}
 \begin{center}
 \rowcolors{2}{white}{lightgray}
@@ -72,6 +72,32 @@ Score cumulé du joueur 1 sur 1000 itérations.
 
 lignes : joueur 1 --- colonnes : joueur 2
 \end{table}
+
+\subsection{Conception}
+Cette première partie pose assez peu de problèmes de conception, 
+le principal étant celui de la représentation des stratégies.
+Nous avons décidé de les représenter par une fonction de décision, qui choisit une action
+(coopérer ou trahir) selon ce qui s'est passé lors des parties précédentes.
+
+Pour pouvoir manipuler les stratégies comme paramètre dans des fonctions d'ordre supérieur, 
+nous avons choisit la signature commune suivante pour toutes les stratégies :
+\begin{verbatim}
+action (*strategy)(int n_played, action *hist, int n_coop)
+\end{verbatim}
+
+Les paramètres sont :
+\begin{itemize}
+\item \verb|n_played| : le nombre de parties jouées.
+\item \verb|hist| : l'historique des actions de l'adversaire.
+\item \verb|n_coop| : le nombre de parties durant lesquelles l'adversaire a coopéré.
+\end{itemize}
+Le choix de ces paramètres permet d'implémenter efficacement (en temps constant)
+toutes les stratégies proposées. Bien sûr, \verb|n_coop| est redondant puisque
+l'on peut le calculer à partir de \verb|hist|, mais cela impliquerait un surcout
+considérable sur un nombre important d'itérations.
+On pourrait également réduire \verb|hist|, car les stratégies implémentées n'en
+utilisent qu'une partie réduite, mais cela limiterait alors sévèrement la
+création de nouvelles stratégies.
 
 \section{Simulation écologique}
 
