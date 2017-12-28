@@ -5,12 +5,17 @@ default: all
 
 ### Main Settings
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -ggdb
 
-PROGRAMS = iterated_prisoner
-SRCSFILE = iterated_prisoner.c strategies.c latex_output.c utils.c
+PROGRAMS = iterated_prisoner populations
+SRCSFILE = iterated_prisoner.c strategies.c latex_output.c utils.c \
+		   population.c populations_simulation.c
 
-iterated_prisoner : $(addprefix $(OBJSDIR),iterated_prisoner.o strategies.o latex_output.o utils.o)
+iterated_prisoner : $(addprefix $(OBJSDIR),iterated_prisoner.o strategies.o \
+					  latex_output.o utils.o)
+
+populations : $(addprefix $(OBJSDIR),populations_simulation.o strategies.o \
+				population.o utils.o)
 
 ###
 
