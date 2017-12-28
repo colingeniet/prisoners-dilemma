@@ -19,21 +19,6 @@ int main(int argc, char **argv) {
     }
     n = atoi(argv[1]);
 
-    /*results = (int**)malloc(N_STRATEGIES*sizeof(int*));
-    if(!results) {
-        perror("main : ");
-        ret = 2;
-        goto end;
-    }
-    for(int i=0; i<N_STRATEGIES; i++) {
-        results[i] = NULL;
-        results[i] = (int*)malloc(N_STRATEGIES*sizeof(int));
-        if(!results[i]) {
-            perror("main : ");
-            ret = 2;
-            goto end;
-        }
-    }*/
     results = (int**)multi_mallocv(2, (size_t)N_STRATEGIES,
                                    (size_t)N_STRATEGIES*sizeof(int));
     if(!results) {
