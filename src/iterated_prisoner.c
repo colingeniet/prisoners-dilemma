@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
     FILE *output = NULL;
 
     if(argc != 2) {
-        fprintf(stderr, "usage : dileme1 <n>\n");
+        fprintf(stderr, "usage : iterated_prisoner <steps>\n");
         ret = 1;
         goto end;
     }
