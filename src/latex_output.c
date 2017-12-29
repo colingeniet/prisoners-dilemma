@@ -14,7 +14,7 @@ int sum(int *ary, int n)
     return s;
 }
 
-int print_result(FILE *f, int n_strategy, int **points, struct strategy_entry *strat) {
+int print_strategies_table(FILE *f, int n_strategy, int **points, struct strategy_entry *strat) {
     if(!f || !points || !strat)
         return -1;
 
@@ -47,7 +47,7 @@ int print_result(FILE *f, int n_strategy, int **points, struct strategy_entry *s
     return 0;
 }
 
-int print_cumulated_result(FILE *f, int n_strategy, int **points, struct strategy_entry *strat) {
+int print_strategies_table_total(FILE *f, int n_strategy, int **points, struct strategy_entry *strat) {
     if(!f || !points || !strat)
         return -1;
 
@@ -104,10 +104,10 @@ void print_latex_end(FILE *f) {
     fprintf(f, "\\end{document}\n");
 }
 
-int print_latex(FILE *f, int n_strategies, int **results,
-                struct strategy_entry *strategies) {
+int print_strategies_latex(FILE *f, int n_strategies, int **results,
+                           struct strategy_entry *strategies) {
     print_latex_preamble(f);
-    print_cumulated_result(f, n_strategies, results, strategies);
+    print_strategies_table_total(f, n_strategies, results, strategies);
     print_latex_end(f);
     return 0;
 }

@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
         ret = 1;
         goto end;
     }
-    print_latex(output, N_STRATEGIES, results, strategies);
+    print_strategies_latex(output, N_STRATEGIES, results, strategies);
     fclose(output);
 
     if(!(ret = compile_latex(latex_output)))
