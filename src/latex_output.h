@@ -36,6 +36,20 @@ int print_strategies_table_total(FILE *f, int n_strategies, int **results,
 int print_strategies_latex(FILE *f, int n_strategies, int **results,
                            struct strategy_entry *strategies);
 
+
+int print_population_graph(FILE *f, int n_strategies, int n, long **results,
+                           struct strategy_entry *strategies);
+
+int print_population_graph_d(FILE *f, int n_strategies, int n, double **results,
+                             struct strategy_entry *strategies);
+
+
+int print_population_latex(FILE *f, int n_strategies, int n, long **results,
+                           struct strategy_entry *strategies);
+
+int print_population_latex_d(FILE *f, int n_strategies, int n, double **results,
+                             struct strategy_entry *strategies);
+
 /** Compiles a latex file.
  * @param file the path of the file to compile.
  * @return -1 on error, the compilation return status otherwise. */

@@ -89,7 +89,7 @@ int print_strategies_table_total(FILE *f, int n_strategy, int **points, struct s
 }
 
 
-void print_latex_preamble(FILE *f) {
+void print_latex_table_preamble(FILE *f) {
     fprintf(f, "\\documentclass[10pt]{article}\n");
     fprintf(f, "\\usepackage[utf8]{inputenc}\n");
     fprintf(f, "\\usepackage[T1]{fontenc}\n");
@@ -99,16 +99,96 @@ void print_latex_preamble(FILE *f) {
     fprintf(f, "\\begin{center}\n");
 }
 
-void print_latex_end(FILE *f) {
+void print_latex_table_end(FILE *f) {
     fprintf(f, "\\end{center}\n");
     fprintf(f, "\\end{document}\n");
 }
 
 int print_strategies_latex(FILE *f, int n_strategies, int **results,
                            struct strategy_entry *strategies) {
-    print_latex_preamble(f);
+    print_latex_table_preamble(f);
     print_strategies_table_total(f, n_strategies, results, strategies);
-    print_latex_end(f);
+    print_latex_table_end(f);
+    return 0;
+}
+
+
+
+
+int print_population_graph(FILE *f, int n_strategies, int n, long **results,
+                           struct strategy_entry *strategies) {
+    fprintf(f, "\\begin{axis}[\n");
+    fprintf(f, "    title={Évolution des populations},\n");
+    fprintf(f, "    xlabel={génération},\n");
+    fprintf(f, "    ylabel={population}]\n");
+
+    for(int strat=0; strat<n_strategies; strat++) {
+        fprintf(f, "    \\addplot table {\n");
+        fprintf(f, "    step\tpop\n");
+        for(int step=0; step<n; step++) {
+            fprintf(f, "    %d\t%ld\n", step, results[step][strat]);
+        }
+        fprintf(f, "    };\n");
+    }
+    fprintf(f, "\\end{axis}\n");
+
+    return 0;
+}
+
+int print_population_graph_d(FILE *f, int n_strategies, int n, double **results,
+                             struct strategy_entry *strategies)
+{
+    fprintf(f, "\\begin{axis}[\n");
+    fprintf(f, "    title={Évolution des populations},\n");
+    fprintf(f, "    xlabel={génération},\n");
+    fprintf(f, "    ylabel={proportion}]\n");
+
+    for(int strat=0; strat<n_strategies; strat++) {
+        fprintf(f, "    \\addplot table {\n");
+        fprintf(f, "    step\tpop\n");
+        for(int step=0; step<n; step++) {
+            fprintf(f, "    %d\t%f\n", step, results[step][strat]);
+        }
+        fprintf(f, "    };\n");
+    }
+    fprintf(f, "\\end{axis}\n");
+
+    return 0;
+}
+
+
+void print_latex_graph_preamble(FILE *f) {
+    fprintf(f, "\\documentclass[10pt]{article}\n");
+    fprintf(f, "\\usepackage[utf8]{inputenc}\n");
+    fprintf(f, "\\usepackage[T1]{fontenc}\n");
+    fprintf(f, "\\usepackage[french]{babel}\n");
+    fprintf(f, "\\usepackage{pgfplots}\n\n");
+    fprintf(f, "\\begin{document}\n");
+    fprintf(f, "\\begin{center}\n");
+    fprintf(f, "\\begin{tikzpicture}\n");
+}
+
+void print_latex_graph_end(FILE *f) {
+    fprintf(f, "\\end{tikzpicture}\n");
+    fprintf(f, "\\end{center}\n");
+    fprintf(f, "\\end{document}\n");
+}
+
+int print_population_latex(FILE *f, int n_strategies, int n, long **results,
+                           struct strategy_entry *strategies)
+{
+    print_latex_graph_preamble(f);
+    print_population_graph(f, n_strategies, n, results, strategies);
+    print_latex_graph_end(f);
+    return 0;
+}
+
+int print_population_latex_d(FILE *f, int n_strategies, int n, double **results,
+                             struct strategy_entry *strategies)
+{
+    print_latex_graph_preamble(f);
+    print_population_graph_d(f, n_strategies, n, results, strategies);
+    print_latex_graph_end(f);
     return 0;
 }
 
