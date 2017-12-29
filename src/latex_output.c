@@ -119,6 +119,8 @@ int print_population_graph(FILE *f, int n_strategies, char *data_file,
                            struct strategy_entry *strategies) {
     fprintf(f, "\\begin{axis}[\n");
     fprintf(f, "    title={Évolution des populations},\n");
+    fprintf(f, "    xlabel={génération},\n");
+    fprintf(f, "    ylabel={taille des populations},\n");
     fprintf(f, "    ymin=0,xmin=0,\n");
     fprintf(f, "    cycle list name=color list,\n");
     fprintf(f, "    legend style={\n");
