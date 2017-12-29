@@ -14,7 +14,10 @@ int main(int argc, char **argv) {
         fprintf(stderr, "usage : populations <steps> [<initial population>]\n");
         return 1;
     }
-    int steps = atoi(argv[1]);
+    /* steps is actually the number of generations in the simulation,
+     * including the initial one. To get the excepted result,
+     * we need one more. */
+    int steps = atoi(argv[1]) + 1;
 
     if(argc == 3) {
         /* simulate discrete populations */

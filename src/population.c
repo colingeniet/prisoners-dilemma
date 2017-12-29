@@ -9,7 +9,6 @@ int populations(struct strategy_entry *strategies, int n_strategies,
                 long *initial_pop, long **result) {
     int ***scores;
     int ret = 0;
-    long *population;
     long total_pop;
     long *points;
     if(!result) {
@@ -38,18 +37,22 @@ int populations(struct strategy_entry *strategies, int n_strategies,
         total_pop += initial_pop[i];
     }
 
-    population = initial_pop;
-    for(int step=0; step<n; step++) {
+    /* copy initial population */
+    for(int i=0; i<n_strategies; i++) {
+        result[0][i] = initial_pop[i];
+    }
+    /* run simulation */
+    for(int step=1; step<n; step++) {
         /* compute the points earned by each strategy */
         for(int i=0; i<n_strategies; i++) {
             points[i] = 0;
             for(int j=0; j<n_strategies; j++) {
-                points[i] += population[j] * scores[i][j][step];
+                points[i] += result[step-1][j] * scores[i][j][step];
             }
             /* a person does not confront itself */
             points[i] -= scores[i][i][step];
 
-            points[i] *= population[i];
+            points[i] *= result[step-1][i];
         }
 
         /* compute the proportions of each strategy at next step */
@@ -64,7 +67,6 @@ int populations(struct strategy_entry *strategies, int n_strategies,
              * but at least this makes sure it does not change too much */
             result[step][i] = (total_pop * points[i]) / sum;
         }
-        population = result[step];
     }
 
     end:
@@ -78,7 +80,6 @@ int proportions(struct strategy_entry *strategies, int n_strategies,
                 double *initial_prop, double **result) {
     int ***scores;
     int ret = 0;
-    double *prop;
     double *points;
     if(!result) {
         fprintf(stderr, "proportions_detail : result array not allocated.\n");
@@ -101,15 +102,19 @@ int proportions(struct strategy_entry *strategies, int n_strategies,
     }
     try_strategies_detail(strategies, n_strategies, n, rewards, scores);
 
-    prop = initial_prop;
-    for(int step=0; step<n; step++) {
+    /* copy initial population */
+    for(int i=0; i<n_strategies; i++) {
+        result[0][i] = initial_prop[i];
+    }
+    /* run simulation */
+    for(int step=1; step<n; step++) {
         /* compute the points earned by each strategy */
         for(int i=0; i<n_strategies; i++) {
             points[i] = 0;
             for(int j=0; j<n_strategies; j++) {
-                points[i] += prop[j] * scores[i][j][step];
+                points[i] += result[step-1][j] * scores[i][j][step];
             }
-            points[i] *= prop[i];
+            points[i] *= result[step-1][i];
         }
 
         /* compute the proportions of each strategy at next step */
@@ -121,7 +126,6 @@ int proportions(struct strategy_entry *strategies, int n_strategies,
         for(int i=0; i<n_strategies; i++) {
             result[step][i] = points[i] / sum;
         }
-        prop = result[step];
     }
 
     end:
