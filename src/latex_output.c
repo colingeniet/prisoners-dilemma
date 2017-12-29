@@ -119,8 +119,16 @@ int print_population_graph(FILE *f, int n_strategies, int n, long **results,
                            struct strategy_entry *strategies) {
     fprintf(f, "\\begin{axis}[\n");
     fprintf(f, "    title={Évolution des populations},\n");
-    fprintf(f, "    xlabel={génération},\n");
-    fprintf(f, "    ylabel={population}]\n");
+    fprintf(f, "    ymin=0,xmin=0,\n");
+    fprintf(f, "    cycle list name=color list,\n");
+    fprintf(f, "    legend style={\n");
+    fprintf(f, "        legend pos=outer north east,\n");
+    fprintf(f, "    },\n");
+    fprintf(f, "    legend entries={\n");
+    for(int strat=0; strat<n_strategies; strat++) {
+        fprintf(f, "        %s,\n", strategies[strat].short_name);
+    }
+    fprintf(f, "    }]\n");
 
     for(int strat=0; strat<n_strategies; strat++) {
         fprintf(f, "    \\addplot table {\n");
@@ -141,7 +149,17 @@ int print_population_graph_d(FILE *f, int n_strategies, int n, double **results,
     fprintf(f, "\\begin{axis}[\n");
     fprintf(f, "    title={Évolution des populations},\n");
     fprintf(f, "    xlabel={génération},\n");
-    fprintf(f, "    ylabel={proportion}]\n");
+    fprintf(f, "    ylabel={proportion},\n");
+    fprintf(f, "    ymin=0,xmin=0,\n");
+    fprintf(f, "    cycle list name=color list,\n");
+    fprintf(f, "    legend style={\n");
+    fprintf(f, "        legend pos=outer north east,\n");
+    fprintf(f, "    },\n");
+    fprintf(f, "    legend entries={\n");
+    for(int strat=0; strat<n_strategies; strat++) {
+        fprintf(f, "        %s,\n", strategies[strat].short_name);
+    }
+    fprintf(f, "    }]\n");
 
     for(int strat=0; strat<n_strategies; strat++) {
         fprintf(f, "    \\addplot table {\n");
@@ -163,6 +181,7 @@ void print_latex_graph_preamble(FILE *f) {
     fprintf(f, "\\usepackage[T1]{fontenc}\n");
     fprintf(f, "\\usepackage[french]{babel}\n");
     fprintf(f, "\\usepackage{pgfplots}\n\n");
+    fprintf(f, "\\pgfplotsset{width=10cm,compat=1.5}\n");
     fprintf(f, "\\begin{document}\n");
     fprintf(f, "\\begin{center}\n");
     fprintf(f, "\\begin{tikzpicture}\n");
