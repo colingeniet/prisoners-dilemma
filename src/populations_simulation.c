@@ -6,6 +6,7 @@
 #include "utils.h"
 
 
+#define data_output "populations.dat"
 #define latex_output "populations.tex"
 #define pdf_output "populations.pdf"
 
@@ -46,13 +47,22 @@ int main(int argc, char **argv) {
 
         populations(strategies, N_STRATEGIES, steps, default_rewards, initial_pop, result);
 
+        output = fopen(data_output, "w");
+        if(!output) {
+            perror("populations_simulation");
+            ret = 1;
+            goto end_pop;
+        }
+        print_population_data(output, N_STRATEGIES, steps, result, strategies);
+        fclose(output);
+
         output = fopen(latex_output, "w");
         if(!output) {
             perror("populations_simulation");
             ret = 1;
             goto end_pop;
         }
-        print_population_latex(output, N_STRATEGIES, steps, result, strategies);
+        print_population_latex(output, N_STRATEGIES, data_output, strategies);
         fclose(output);
 
         if(!(ret = compile_latex(latex_output)))
@@ -88,13 +98,22 @@ int main(int argc, char **argv) {
 
         proportions(strategies, N_STRATEGIES, steps, default_rewards, initial_prop, result);
 
+        output = fopen(data_output, "w");
+        if(!output) {
+            perror("populations_simulation");
+            ret = 1;
+            goto end_prop;
+        }
+        print_population_data_d(output, N_STRATEGIES, steps, result, strategies);
+        fclose(output);
+
         output = fopen(latex_output, "w");
         if(!output) {
             perror("populations_simulation");
             ret = 1;
             goto end_prop;
         }
-        print_population_latex_d(output, N_STRATEGIES, steps, result, strategies);
+        print_population_latex(output, N_STRATEGIES, data_output, strategies);
         fclose(output);
 
         if(!(ret = compile_latex(latex_output)))

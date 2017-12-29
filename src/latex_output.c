@@ -115,7 +115,7 @@ int print_strategies_latex(FILE *f, int n_strategies, int **results,
 
 
 
-int print_population_graph(FILE *f, int n_strategies, int n, long **results,
+int print_population_graph(FILE *f, int n_strategies, char *data_file,
                            struct strategy_entry *strategies) {
     fprintf(f, "\\begin{axis}[\n");
     fprintf(f, "    title={Évolution des populations},\n");
@@ -131,49 +131,48 @@ int print_population_graph(FILE *f, int n_strategies, int n, long **results,
     fprintf(f, "    }]\n");
 
     for(int strat=0; strat<n_strategies; strat++) {
-        fprintf(f, "    \\addplot table {\n");
-        fprintf(f, "    step\tpop\n");
-        for(int step=0; step<n; step++) {
-            fprintf(f, "    %d\t%ld\n", step, results[step][strat]);
-        }
-        fprintf(f, "    };\n");
+        fprintf(f, "    \\addplot table [x=gen,y=%s] {%s};\n",
+                strategies[strat].very_short_name, data_file);
     }
     fprintf(f, "\\end{axis}\n");
 
     return 0;
 }
 
-int print_population_graph_d(FILE *f, int n_strategies, int n, double **results,
-                             struct strategy_entry *strategies)
-{
-    fprintf(f, "\\begin{axis}[\n");
-    fprintf(f, "    title={Évolution des populations},\n");
-    fprintf(f, "    xlabel={génération},\n");
-    fprintf(f, "    ylabel={proportion},\n");
-    fprintf(f, "    ymin=0,xmin=0,\n");
-    fprintf(f, "    cycle list name=color list,\n");
-    fprintf(f, "    legend style={\n");
-    fprintf(f, "        legend pos=outer north east,\n");
-    fprintf(f, "    },\n");
-    fprintf(f, "    legend entries={\n");
-    for(int strat=0; strat<n_strategies; strat++) {
-        fprintf(f, "        %s,\n", strategies[strat].short_name);
-    }
-    fprintf(f, "    }]\n");
 
+int print_population_data(FILE *f, int n_strategies, int n, long **results,
+                          struct strategy_entry *strategies) {
+    fprintf(f, "gen");
     for(int strat=0; strat<n_strategies; strat++) {
-        fprintf(f, "    \\addplot table {\n");
-        fprintf(f, "    step\tpop\n");
-        for(int step=0; step<n; step++) {
-            fprintf(f, "    %d\t%f\n", step, results[step][strat]);
+        fprintf(f, "\t%s", strategies[strat].very_short_name);
+    }
+    fprintf(f, "\n");
+    for(int step=0; step<n; step++) {
+        fprintf(f, "%d", step);
+        for(int strat=0; strat<n_strategies; strat++) {
+            fprintf(f, "\t%ld", results[step][strat]);
         }
-        fprintf(f, "    };\n");
+        fprintf(f, "\n");
     }
-    fprintf(f, "\\end{axis}\n");
-
     return 0;
 }
 
+int print_population_data_d(FILE *f, int n_strategies, int n, double **results,
+                            struct strategy_entry *strategies) {
+    fprintf(f, "gen");
+    for(int strat=0; strat<n_strategies; strat++) {
+        fprintf(f, "\t%s", strategies[strat].very_short_name);
+    }
+    fprintf(f, "\n");
+    for(int step=0; step<n; step++) {
+        fprintf(f, "%d", step);
+        for(int strat=0; strat<n_strategies; strat++) {
+            fprintf(f, "\t%f", results[step][strat]);
+        }
+        fprintf(f, "\n");
+    }
+    return 0;
+}
 
 void print_latex_graph_preamble(FILE *f) {
     fprintf(f, "\\documentclass[10pt]{article}\n");
@@ -193,20 +192,11 @@ void print_latex_graph_end(FILE *f) {
     fprintf(f, "\\end{document}\n");
 }
 
-int print_population_latex(FILE *f, int n_strategies, int n, long **results,
+int print_population_latex(FILE *f, int n_strategies, char *data_file,
                            struct strategy_entry *strategies)
 {
     print_latex_graph_preamble(f);
-    print_population_graph(f, n_strategies, n, results, strategies);
-    print_latex_graph_end(f);
-    return 0;
-}
-
-int print_population_latex_d(FILE *f, int n_strategies, int n, double **results,
-                             struct strategy_entry *strategies)
-{
-    print_latex_graph_preamble(f);
-    print_population_graph_d(f, n_strategies, n, results, strategies);
+    print_population_graph(f, n_strategies, data_file, strategies);
     print_latex_graph_end(f);
     return 0;
 }

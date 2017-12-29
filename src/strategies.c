@@ -54,7 +54,7 @@ struct strategy_entry strategies[N_STRATEGIES] = {
    {nice, "gentille", "gent", "g"},
    {bad, "méchante", "méch", "m"},
    {give_give, "donnant-donnant", "d-d", "dd"},
-   {distrustful, "méfiante", "méf", "m"},
+   {distrustful, "méfiante", "méf", "mf"},
    {give_give_hard, "donnant-donnant-dur", "d-d dur", "ddd"},
    {spiteful, "rancunière", "ranc", "r"},
    {periodic_nice, "périodique gentille", "p gent", "pg"},
