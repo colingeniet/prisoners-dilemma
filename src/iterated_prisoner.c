@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
 
     output = fopen(latex_output, "w");
     if(!output) {
-        perror("main : ");
+        perror("iterated_prisoner");
         ret = 1;
         goto end;
     }

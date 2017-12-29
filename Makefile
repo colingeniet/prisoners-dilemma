@@ -15,7 +15,7 @@ iterated_prisoner : $(addprefix $(OBJSDIR),iterated_prisoner.o strategies.o \
 					  latex_output.o utils.o)
 
 populations : $(addprefix $(OBJSDIR),populations_simulation.o strategies.o \
-				population.o utils.o)
+				population.o utils.o latex_output.o)
 
 ###
 

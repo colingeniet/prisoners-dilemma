@@ -1,9 +1,13 @@
 #include "population.h"
 #include "strategies.h"
+#include "latex_output.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "utils.h"
 
+
+#define latex_output "populations.tex"
+#define pdf_output "populations.pdf"
 
 int main(int argc, char **argv) {
     if(argc < 2 || argc > 3) {
@@ -18,6 +22,7 @@ int main(int argc, char **argv) {
         long *initial_pop;
         long **result;
         int ret = 0;
+        FILE *output;
 
         initial_pop = malloc(N_STRATEGIES * sizeof(long));
         if(!initial_pop) {
@@ -37,10 +42,18 @@ int main(int argc, char **argv) {
         }
 
         populations(strategies, N_STRATEGIES, steps, default_rewards, initial_pop, result);
-        for(int i=0; i<N_STRATEGIES; i++) {
-            printf("%ld\t", result[steps-1][i]);
+
+        output = fopen(latex_output, "w");
+        if(!output) {
+            perror("populations_simulation");
+            ret = 1;
+            goto end_pop;
         }
-        printf("\n");
+        print_population_latex(output, N_STRATEGIES, steps, result, strategies);
+        fclose(output);
+
+        if(!(ret = compile_latex(latex_output)))
+            ret = open_pdf(pdf_output);
 
         end_pop:
         free(initial_pop);
@@ -51,6 +64,7 @@ int main(int argc, char **argv) {
         double *initial_prop;
         double **result;
         int ret = 0;
+        FILE *output;
 
         initial_prop = malloc(N_STRATEGIES * sizeof(double));
         if(!initial_prop) {
@@ -70,10 +84,18 @@ int main(int argc, char **argv) {
         }
 
         proportions(strategies, N_STRATEGIES, steps, default_rewards, initial_prop, result);
-        for(int i=0; i<N_STRATEGIES; i++) {
-            printf("%f\t", result[steps-1][i]);
+
+        output = fopen(latex_output, "w");
+        if(!output) {
+            perror("populations_simulation");
+            ret = 1;
+            goto end_prop;
         }
-        printf("\n");
+        print_population_latex_d(output, N_STRATEGIES, steps, result, strategies);
+        fclose(output);
+
+        if(!(ret = compile_latex(latex_output)))
+            ret = open_pdf(pdf_output);
 
         end_prop:
         free(initial_prop);
