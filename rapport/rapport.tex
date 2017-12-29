@@ -5,6 +5,7 @@
 \usepackage[french]{babel}
 
 \usepackage[table]{xcolor}
+\usepackage{pgfplots}
 
 \title{Projet Architecture --- Système}
 \author{Yoan Geran \and Colin Geniet}
@@ -23,7 +24,7 @@ $ ./iterated_prisoner <iterations>
 
 Ce programme simule toutes les combinaisons des 11 stratégies standard pour \verb|<iterations>| itérations,
 et crée \verb|iterated_dilemma.tex| contenant un tableau des scores cumulés.
-Voir \ref{strat_table} pour un exemple de résultat.
+Voir la table \ref{strat_table} pour un exemple de résultat.
 
 Le programme tente de compiler le fichier \LaTeX{} avec \verb|pdflatex|, et de l'afficher avec \verb|evince|
 (modifiable dans \verb|latex_output.h|).
@@ -99,7 +100,68 @@ On pourrait également réduire \verb|hist|, car les stratégies implémentées 
 utilisent qu'une partie réduite, mais cela limiterait alors sévèrement la
 création de nouvelles stratégies.
 
+
 \section{Simulation écologique}
+\subsection{Usage}
+\begin{verbatim}
+$ make populations
+$ ./populations <iterations> [initial_population]
+\end{verbatim}
+
+Ce programme exécute la simulation écologique pour \verb|iterations| générations,
+avec des populations initiales toutes de taille \verb|initial_population|,
+et crée \verb|populations.tex| contenant le graphe de l'évolution de la taille des populations.
+Voir la figure \ref{sim_plot} pour un exemple de résultat.
+
+Le programme tente de compiler le fichier \LaTeX{} avec \verb|pdflatex|, et de l'afficher avec \verb|evince|
+(modifiable dans \verb|latex_output.h|).
+
+Le paramètre \verb|initial_population| est optionnel. S'il n'est pas fournit, le programme travaille
+alors avec des proportions de population réelles, au lieu de tailles de populations discrètes.
+Le résultat correspond alors au comportement limite, pour des populations grandes.
+
+\begin{figure}
+\caption{Simulation écologique}
+\label{sim_plot}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+    title={Évolution des populations},
+    xlabel={génération},
+    ylabel={taille des populations},
+    ymin=0,xmin=0,
+    cycle list name=color list,
+    legend style={
+        legend pos=outer north east,
+    },
+    legend entries={
+        gent,
+        méch,
+        d-d,
+        méf,
+        d-d dur,
+        ranc,
+        p gent,
+        p méch,
+        maj mou,
+        maj dur,
+        sond,
+    }]
+    \addplot table [x=gen,y=g] {populations.dat};
+    \addplot table [x=gen,y=m] {populations.dat};
+    \addplot table [x=gen,y=dd] {populations.dat};
+    \addplot table [x=gen,y=mf] {populations.dat};
+    \addplot table [x=gen,y=ddd] {populations.dat};
+    \addplot table [x=gen,y=r] {populations.dat};
+    \addplot table [x=gen,y=pg] {populations.dat};
+    \addplot table [x=gen,y=pm] {populations.dat};
+    \addplot table [x=gen,y=mm] {populations.dat};
+    \addplot table [x=gen,y=md] {populations.dat};
+    \addplot table [x=gen,y=s] {populations.dat};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+\end{figure}
 
 \section{Simulation distribuée}
 
