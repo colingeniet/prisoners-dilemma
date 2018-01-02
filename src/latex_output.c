@@ -182,7 +182,7 @@ void print_latex_graph_preamble(FILE *f) {
     fprintf(f, "\\usepackage[T1]{fontenc}\n");
     fprintf(f, "\\usepackage[french]{babel}\n");
     fprintf(f, "\\usepackage{pgfplots}\n\n");
-    fprintf(f, "\\pgfplotsset{width=10cm,compat=1.5}\n");
+    fprintf(f, "\\pgfplotsset{width=10cm}\n");
     fprintf(f, "\\begin{document}\n");
     fprintf(f, "\\begin{center}\n");
     fprintf(f, "\\begin{tikzpicture}\n");
