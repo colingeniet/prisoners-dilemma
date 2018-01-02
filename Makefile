@@ -5,7 +5,7 @@ default: all
 
 ### Main Settings
 CC = gcc
-CFLAGS = -Wall -ggdb
+CFLAGS = -Wall
 
 PROGRAMS = iterated_prisoner populations
 SRCSFILE = iterated_prisoner.c strategies.c latex_output.c utils.c \
