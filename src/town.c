@@ -1,8 +1,8 @@
 #include "town.h"
-#include "network.h"
 #include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 
 void fatal_error(char *error) {
@@ -23,16 +23,16 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
 
     // initialize arrays
     action ***actions = NULL;
-    actions = multi_mallocv(town->n_strategies, town->n_strategies * sizeof(action*));
-    if(!actions) fatal_perror("town : ");
+    actions = multi_mallocv(2, town->n_strategies, town->n_strategies * sizeof(action*));
+    if(!actions) fatal_perror("town");
 
     int **n_coop = NULL;
-    n_coop = multi_mallocv(town->n_strategies, town->n_strategies * sizeof(int));
-    if(!n_coop) fatal_perror("town : ");
+    n_coop = multi_mallocv(2, town->n_strategies, town->n_strategies * sizeof(int));
+    if(!n_coop) fatal_perror("town");
 
     long *scores = NULL;
     scores = malloc(town->n_strategies * sizeof(long));
-    if(!scores) fatal_perror("town : ");
+    if(!scores) fatal_perror("town");
 
     // only allocate memory for allowed startegies !
     for(int i=0; i<town->n_strategies; i++) {
@@ -41,7 +41,7 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
             actions[i][j] = NULL;
             if(town->allowed[i] && town->allowed[j]) {
                 actions[i][j] = malloc(steps_alloc * sizeof(action));
-                if(!actions[i][j]) fatal_perror("town : ");
+                if(!actions[i][j]) fatal_perror("town");
             }
         }
     }
@@ -58,7 +58,7 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
                 for(int j=0; j<town->n_strategies; j++) {
                     if(!town->allowed[j]) continue;
                     action *mem = realloc(actions[i][j], steps_alloc * sizeof(action));
-                    if(!mem) fatal_perror("town : ");
+                    if(!mem) fatal_perror("town");
                     else actions[i][j] = mem;
                 }
             }
@@ -89,8 +89,8 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
             for(int j=0; j<town->n_strategies; j++) {
                 if(!town->allowed[j]) continue;
                 // score of i vs j at current step
-                long score = town->rewards[actions[i][j][step]]
-                                          [actions[j][i][step]];
+                long score = (*town->rewards)[actions[i][j][step]]
+                                             [actions[j][i][step]];
                 if(i != j) scores[i] += score * town->population[j];
                 else scores[i] += score * (town->population[i] - 1);
             }

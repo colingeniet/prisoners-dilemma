@@ -2,14 +2,13 @@
 #define TOWN_H_INCLUDED
 
 #include "strategies.h"
-#include "pthread.h"
 #include "semaphore.h"
 
 struct town_descriptor {
     int n_strategies;
     struct strategy_entry *strategies;
     char *allowed;
-    int *rewards[2];
+    int (*rewards)[2][2];
     long *population;
 };
 
