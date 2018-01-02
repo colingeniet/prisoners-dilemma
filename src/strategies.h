@@ -17,27 +17,27 @@ typedef action (*strategy)(int n_played, action *hist, int n_coop);
 /** always cooperates */
 action strat_nice(int n_played, action *hist, int n_coop);
 /** always defects */
-action bad(int n_played, action *hist, int n_coop);
+action strat_bad(int n_played, action *hist, int n_coop);
 /** cooperates on first game, then plays same as adversary last action */
-action give_give(int n_played, action *hist, int n_coop);
+action strat_give_give(int n_played, action *hist, int n_coop);
 /** defects on first game, then plays same as adversary last action */
-action distrustful(int n_played, action *hist, int n_coop);
+action strat_distrustful(int n_played, action *hist, int n_coop);
 /** cooperates unless the adversary defected in one of the last two  games */
-action give_give_hard(int n_played, action *hist, int n_coop);
+action strat_give_give_hard(int n_played, action *hist, int n_coop);
 /** cooperates as long as the adversary never defects */
-action spiteful(int n_played, action *hist, int n_coop);
+action strat_spiteful(int n_played, action *hist, int n_coop);
 /** cooperates, cooperates, defects, ... */
-action periodic_nice(int n_played, action *hist, int n_coop);
+action strat_periodic_nice(int n_played, action *hist, int n_coop);
 /** defects, defects, cooperates, ... */
-action periodic_bad(int n_played, action *hist, int n_coop);
+action strat_periodic_bad(int n_played, action *hist, int n_coop);
 /** plays the adversary most played action, cooperates by default */
-action majority_nice(int n_played, action *hist, int n_coop);
+action strat_majority_nice(int n_played, action *hist, int n_coop);
 /** plays the adversary most played action, defects by default */
-action majority_bad(int n_played, action *hist, int n_coop);
+action strat_majority_bad(int n_played, action *hist, int n_coop);
 /** plays defects, cooperates, cooperates.
     then if the adversary cooperated on game 2 and 3 always defects
          else same as give_give */
-action poll(int n_played, action *hist, int n_coop);
+action strat_poll(int n_played, action *hist, int n_coop);
 
 
 /** Group up a strategy with various names for display purposes */
