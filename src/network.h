@@ -19,9 +19,8 @@ int open_listen_socket(short port);
 
 /** Wait for a client to connect on a socket.
  * @param socket the socket.
- * @param client the client to wait for. If unset, any client will be accepted.
  * @return a file descriptor to communicate with the client,
  *   or -1 if an error occured. */
-int wait_for_client(int socket, char *client = NULL);
+int wait_for_client(int socket);
 
 #endif /* end of include guard: NETWORK_H_INCLUDED */
