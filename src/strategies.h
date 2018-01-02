@@ -15,7 +15,7 @@ typedef char action;
 typedef action (*strategy)(int n_played, action *hist, int n_coop);
 
 /** always cooperates */
-action nice(int n_played, action *hist, int n_coop);
+action strat_nice(int n_played, action *hist, int n_coop);
 /** always defects */
 action bad(int n_played, action *hist, int n_coop);
 /** cooperates on first game, then plays same as adversary last action */
