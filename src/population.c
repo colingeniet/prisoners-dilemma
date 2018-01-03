@@ -61,11 +61,20 @@ int populations(struct strategy_entry *strategies, int n_strategies,
             sum += points[i];
         }
 
-        for(int i=0; i<n_strategies; i++) {
-            /* TO DO : ensure the total population does not change
-             * the sum of the various populations is not exactly constant,
-             * but at least this makes sure it does not change too much */
-            result[step][i] = (total_pop * points[i]) / sum;
+        // if the total score is 0, do nothing !
+        // this can happen if the population is empty,
+        // or with some weird reward values
+        if(sum) {
+            for(int i=0; i<n_strategies; i++) {
+                /* TO DO : ensure the total population does not change
+                 * the sum of the various populations is not exactly constant,
+                 * but at least this makes sure it does not change too much */
+                result[step][i] = (total_pop * points[i]) / sum;
+            }
+        } else {
+            for(int i=0; i<n_strategies; i++) {
+                result[step][i] = result[step-1][i];
+            }
         }
     }
 
@@ -123,8 +132,16 @@ int proportions(struct strategy_entry *strategies, int n_strategies,
             sum += points[i];
         }
 
-        for(int i=0; i<n_strategies; i++) {
-            result[step][i] = points[i] / sum;
+        // if the total score is 0, do nothing !
+        // this can happen with some weird reward values
+        if(sum != 0) {
+            for(int i=0; i<n_strategies; i++) {
+                result[step][i] = points[i] / sum;
+            }
+        } else {
+            for(int i=0; i<n_strategies; i++) {
+                result[step][i] = result[step-1][i];
+            }
         }
     }
 

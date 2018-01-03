@@ -105,9 +105,15 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
                 total_score += scores[i];
             }
         }
-        for(int i=0; i<town->n_strategies; i++) {
-            if(town->allowed[i]) {
-                town->population[i] = (total_pop * scores[i]) / total_score;
+
+        // if the total score is 0, do nothing !
+        // this can happen if the population is empty,
+        // or with some weird reward values
+        if(total_score) {
+            for(int i=0; i<town->n_strategies; i++) {
+                if(town->allowed[i]) {
+                    town->population[i] = (total_pop * scores[i]) / total_score;
+                }
             }
         }
 
