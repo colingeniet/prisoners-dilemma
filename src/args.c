@@ -17,12 +17,17 @@ If STRATS is the string \"all\", all strategies are allowed.\n"},
 "Initial population for strategies in STRATS. STRATS shall be a comma \
 separated list of strategies given by their very short name. When used \
 without STRATS, it is applied to all strategies.\n"},
+    {"rewards", 'r', "P,T,D,C", 0,
+"Set the reward values. Rewards are as follow :\n\
+       | defect |  coop  |\n\
+defect | P    P | T    D |\n\
+ coop  | D    T | C    C |\n\
+Default values are P=1, T=5, D=0, C=3.\n"},
     {"names", OPT_NAMES, 0, 0, "Print names for all standard strategies.\n"},
     {0}
 };
 
-/** Parse a comma separated list of strategy names, and allow them in town.
- *  Very short strategy names are used. */
+/** Parse argument for option 'allow' */
 int allow_strats(char *strats, struct town_descriptor *town) {
     if(!strcmp(strats, "all")) {
         for(int i=0; i<town->n_strategies; i++) {
@@ -49,13 +54,14 @@ int allow_strats(char *strats, struct town_descriptor *town) {
     return 0;
 }
 
+/** Parse argument for option 'pop' */
 int set_population(char *arg, struct town_descriptor *town) {
     char *delim = strchr(arg, ':');
     if(delim) {
         char *end;
         long pop = strtol(delim+1, &end, 0);
         if(*end) {
-            fprintf(stderr, "Unexcpected population value : %s", delim+1);
+            fprintf(stderr, "Unexpected population value : %s\n", delim+1);
             exit(EXIT_FAILURE);
         }
 
@@ -79,7 +85,7 @@ int set_population(char *arg, struct town_descriptor *town) {
         char *end;
         long pop = strtol(arg, &end, 0);
         if(*end) {
-            fprintf(stderr, "Unexcpected population value : %s", arg);
+            fprintf(stderr, "Unexpected population value : %s\n", arg);
             exit(EXIT_FAILURE);
         }
 
@@ -87,6 +93,33 @@ int set_population(char *arg, struct town_descriptor *town) {
             town->population[i] = pop;
         }
     }
+    return 0;
+}
+
+/** Parse argument for option 'rewards' */
+int set_rewards(char *arg, struct town_descriptor *town) {
+    char *token, *end;
+    int reward;
+
+    token = strtok(arg, ",");
+    for(int i=0; i<4; i++) {
+        if(!token) {
+            fprintf(stderr, "not enough arguments to option --reward\n");
+            exit(EXIT_FAILURE);
+        }
+        reward = strtol(token, &end, 0);
+        if(*end) {
+            fprintf(stderr, "Unexpected value : %s\n", token);
+            exit(EXIT_FAILURE);
+        }
+        (*town->rewards)[i/2][i%2] = reward;
+        token = strtok(NULL, ",");
+    }
+
+    if(token) {
+        fprintf(stderr, "Too many arguments to option --reward : %s\n", token);
+    }
+
     return 0;
 }
 
@@ -110,6 +143,9 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
         break;
     case 'p':
         set_population(arg, town);
+        break;
+    case 'r':
+        set_rewards(arg, town);
         break;
     case OPT_NAMES:
         print_names(town);
