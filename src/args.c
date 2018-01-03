@@ -4,20 +4,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+#define OPT_NAMES 256
+
 struct argp_option options[] = {
     {"allow", 'a', "STRATS", 0,
 "Allow strategies in STRATS. STRATS shall be a comma separated list \
-of strategies given by their very short names."},
+of strategies given by their very short names. \
+See --names for the list of strategy names. \n\
+If STRATS is the string \"all\", all strategies are allowed.\n"},
     {"pop", 'p', "[STRATS:]POP", 0,
 "Initial population for strategies in STRATS. STRATS shall be a comma \
-separated list of strategies given by their short name. When used \
-without STRATS, it is applied to all strategies"},
+separated list of strategies given by their very short name. When used \
+without STRATS, it is applied to all strategies.\n"},
+    {"names", OPT_NAMES, 0, 0, "Print names for all standard strategies.\n"},
     {0}
 };
 
 /** Parse a comma separated list of strategy names, and allow them in town.
  *  Very short strategy names are used. */
 int allow_strats(char *strats, struct town_descriptor *town) {
+    if(!strcmp(strats, "all")) {
+        for(int i=0; i<town->n_strategies; i++) {
+            town->allowed[i] = 1;
+        }
+        return 0;
+    }
+
     char *token = strtok(strats, ",");
     while(token) {
         char found = 0;
@@ -77,6 +90,17 @@ int set_population(char *arg, struct town_descriptor *town) {
     return 0;
 }
 
+void print_names(struct town_descriptor *town) {
+    printf("strategy names :\n");
+    printf("very short\tshort\t\tfull\n");
+    for(int i=0; i<town->n_strategies; i++) {
+        printf("%s\t\t%s\t\t%s\n",
+               town->strategies[i].very_short_name,
+               town->strategies[i].short_name,
+               town->strategies[i].name);
+    }
+}
+
 error_t parse_opt(int key, char *arg, struct argp_state *state) {
     struct town_descriptor *town = state->input;
 
@@ -86,6 +110,10 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
         break;
     case 'p':
         set_population(arg, town);
+        break;
+    case OPT_NAMES:
+        print_names(town);
+        exit(EXIT_SUCCESS);
         break;
     default:
         return ARGP_ERR_UNKNOWN;
