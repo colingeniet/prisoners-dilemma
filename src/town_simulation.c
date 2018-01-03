@@ -22,9 +22,6 @@ void *population_process(void *data) {
 
 int main(int argc, char **argv) {
     struct town_descriptor *town = parse_arguments(argc, argv);
-    for(int i=0; i<town->n_strategies; i++) {
-        if(town->allowed[i]) town->population[i] = 100;
-    }
 
     sem_t pop_lock, next, done;
     sem_init(&pop_lock, 0, 1);
