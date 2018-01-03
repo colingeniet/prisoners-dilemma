@@ -1,7 +1,8 @@
 #include "town.h"
 #include "strategies.h"
-#include "pthread.h"
-#include "semaphore.h"
+#include "args.h"
+#include <pthread.h>
+#include <semaphore.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -20,19 +21,10 @@ void *population_process(void *data) {
 }
 
 int main(int argc, char **argv) {
-    char allowed[N_STRATEGIES];
-    long population[N_STRATEGIES];
-    for(int i=0; i<N_STRATEGIES; i++) {
-        allowed[i] = 1;
-        population[i] = 100;
+    struct town_descriptor *town = parse_arguments(argc, argv);
+    for(int i=0; i<town->n_strategies; i++) {
+        if(town->allowed[i]) town->population[i] = 100;
     }
-
-    struct town_descriptor town;
-    town.n_strategies = N_STRATEGIES;
-    town.strategies = strategies;
-    town.allowed = allowed;
-    town.population = population;
-    town.rewards = &default_rewards;
 
     sem_t pop_lock, next, done;
     sem_init(&pop_lock, 0, 1);
@@ -40,7 +32,7 @@ int main(int argc, char **argv) {
     sem_init(&done, 0, 0);
 
     struct population_data data;
-    data.town = &town;
+    data.town = town;
     data.pop_lock = &pop_lock;
     data.next = &next;
     data.done = &done;
@@ -50,8 +42,9 @@ int main(int argc, char **argv) {
 
     for(int step=0;;step++) {
         printf("step %d\n", step);
-        for(int i=0; i<N_STRATEGIES; i++) {
-            printf("%s\t%ld\n", strategies[i].short_name, population[i]);
+        for(int i=0; i<town->n_strategies; i++) {
+            if(!town->allowed[i]) continue;
+            printf("%s\t%ld\n", town->strategies[i].short_name, town->population[i]);
         }
         printf("\n");
         sem_post(&next);
