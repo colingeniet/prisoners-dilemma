@@ -27,7 +27,11 @@ void *population_process(void *data) {
 // it's stupid, but it works
 void *monitor_com(void *mon) {
     int socket = open_listen_socket(4000);
+    if(socket < 0) exit(EXIT_FAILURE);
+
     int fd = wait_for_client(socket);
+    if(fd < 0) exit(EXIT_FAILURE);
+
     *(FILE **)mon = fdopen(fd, "w");
 
     char c;
