@@ -65,6 +65,7 @@ int main(int argc, char **argv) {
             for(int i=0; i<town->n_strategies; i++) {
                 fprintf(mon, "%ld ", town->population[i]);
             }
+            fprintf(mon, "\n");
         } else {
             printf("step %d\n", step);
             for(int i=0; i<town->n_strategies; i++) {

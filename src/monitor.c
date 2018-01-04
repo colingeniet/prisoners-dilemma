@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
             printf("%.2d", host);
             for(int strat=0; strat<N_STRATEGIES; strat++) {
                 long pop;
-                fscanf(streams[host], "%ld ", &pop);
+                fscanf(streams[host], " %ld", &pop);
                 printf("\t%ld", pop);
             }
             printf("\n");
