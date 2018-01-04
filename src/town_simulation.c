@@ -25,15 +25,8 @@ void *population_process(void *data) {
 
 // just quit as soon as a message is sent, or connection is closed.
 // it's stupid, but it works
-void *monitor_com(void *mon) {
-    int socket = open_listen_socket(4000);
-    if(socket < 0) exit(EXIT_FAILURE);
-
-    int fd = wait_for_client(socket);
-    if(fd < 0) exit(EXIT_FAILURE);
-
-    *(FILE **)mon = fdopen(fd, "w");
-
+void *monitor_com(void *_fd) {
+    int fd = (int)_fd;
     char c;
     read(fd, &c, 1);
     exit(0);
@@ -53,11 +46,23 @@ int main(int argc, char **argv) {
     data.next = &next;
     data.done = &done;
 
-    FILE *mon = NULL;
+    int fd;
+    int socket = open_listen_socket(4000);
+    if(socket < 0) exit(EXIT_FAILURE);
+
+    fd = wait_for_client(socket);
+    if(socket < 0) exit(EXIT_FAILURE);
+
+    FILE *mon = fdopen(fd, "w");
+    if(!mon) {
+        perror("town");
+        exit(EXIT_FAILURE);
+    }
+
 
     pthread_t pop_t, mon_t;
     pthread_create(&pop_t, NULL, population_process, (void*)&data);
-    pthread_create(&mon_t, NULL, monitor_com, (void*)&mon);
+    pthread_create(&mon_t, NULL, monitor_com, (void*)fd);
 
 
     for(step=0;;step++) {

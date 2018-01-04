@@ -29,7 +29,6 @@ int main(int argc, char **argv) {
     }
 
     char buffer[100];
-    int n;
     while(fgets(buffer, 100, streams[1])) {
         printf("%s", buffer);
     }
