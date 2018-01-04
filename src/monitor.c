@@ -93,6 +93,8 @@ int main(int argc, char **argv) {
         }
         printf("\n");
 
+        modified = 0;
+
         for(int i=0; i<N_HOSTS; i++) {
             sem_post(&pop_sem);
         }
