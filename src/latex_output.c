@@ -14,7 +14,7 @@ int sum(int *ary, int n)
     return s;
 }
 
-int print_result(FILE *f, int n_strategy, int **points, struct strategy_entry *strat) {
+int print_strategies_table(FILE *f, int n_strategy, int **points, struct strategy_entry *strat) {
     if(!f || !points || !strat)
         return -1;
 
@@ -47,7 +47,7 @@ int print_result(FILE *f, int n_strategy, int **points, struct strategy_entry *s
     return 0;
 }
 
-int print_cumulated_result(FILE *f, int n_strategy, int **points, struct strategy_entry *strat) {
+int print_strategies_table_total(FILE *f, int n_strategy, int **points, struct strategy_entry *strat) {
     if(!f || !points || !strat)
         return -1;
 
@@ -89,7 +89,7 @@ int print_cumulated_result(FILE *f, int n_strategy, int **points, struct strateg
 }
 
 
-void print_latex_preamble(FILE *f) {
+void print_latex_table_preamble(FILE *f) {
     fprintf(f, "\\documentclass[10pt]{article}\n");
     fprintf(f, "\\usepackage[utf8]{inputenc}\n");
     fprintf(f, "\\usepackage[T1]{fontenc}\n");
@@ -99,16 +99,107 @@ void print_latex_preamble(FILE *f) {
     fprintf(f, "\\begin{center}\n");
 }
 
-void print_latex_end(FILE *f) {
+void print_latex_table_end(FILE *f) {
     fprintf(f, "\\end{center}\n");
     fprintf(f, "\\end{document}\n");
 }
 
-int print_latex(FILE *f, int n_strategies, int **results,
-                struct strategy_entry *strategies) {
-    print_latex_preamble(f);
-    print_cumulated_result(f, n_strategies, results, strategies);
-    print_latex_end(f);
+int print_strategies_latex(FILE *f, int n_strategies, int **results,
+                           struct strategy_entry *strategies) {
+    print_latex_table_preamble(f);
+    print_strategies_table_total(f, n_strategies, results, strategies);
+    print_latex_table_end(f);
+    return 0;
+}
+
+
+
+
+int print_population_graph(FILE *f, int n_strategies, char *data_file,
+                           struct strategy_entry *strategies) {
+    fprintf(f, "\\begin{axis}[\n");
+    fprintf(f, "    title={Évolution des populations},\n");
+    fprintf(f, "    xlabel={génération},\n");
+    fprintf(f, "    ylabel={taille des populations},\n");
+    fprintf(f, "    ymin=0,xmin=0,\n");
+    fprintf(f, "    cycle list name=color list,\n");
+    fprintf(f, "    legend style={\n");
+    fprintf(f, "        legend pos=outer north east,\n");
+    fprintf(f, "    },\n");
+    fprintf(f, "    legend entries={\n");
+    for(int strat=0; strat<n_strategies; strat++) {
+        fprintf(f, "        %s,\n", strategies[strat].short_name);
+    }
+    fprintf(f, "    }]\n");
+
+    for(int strat=0; strat<n_strategies; strat++) {
+        fprintf(f, "    \\addplot table [x=gen,y=%s] {%s};\n",
+                strategies[strat].very_short_name, data_file);
+    }
+    fprintf(f, "\\end{axis}\n");
+
+    return 0;
+}
+
+
+int print_population_data(FILE *f, int n_strategies, int n, long **results,
+                          struct strategy_entry *strategies) {
+    fprintf(f, "gen");
+    for(int strat=0; strat<n_strategies; strat++) {
+        fprintf(f, "\t%s", strategies[strat].very_short_name);
+    }
+    fprintf(f, "\n");
+    for(int step=0; step<n; step++) {
+        fprintf(f, "%d", step);
+        for(int strat=0; strat<n_strategies; strat++) {
+            fprintf(f, "\t%ld", results[step][strat]);
+        }
+        fprintf(f, "\n");
+    }
+    return 0;
+}
+
+int print_population_data_d(FILE *f, int n_strategies, int n, double **results,
+                            struct strategy_entry *strategies) {
+    fprintf(f, "gen");
+    for(int strat=0; strat<n_strategies; strat++) {
+        fprintf(f, "\t%s", strategies[strat].very_short_name);
+    }
+    fprintf(f, "\n");
+    for(int step=0; step<n; step++) {
+        fprintf(f, "%d", step);
+        for(int strat=0; strat<n_strategies; strat++) {
+            fprintf(f, "\t%f", results[step][strat]);
+        }
+        fprintf(f, "\n");
+    }
+    return 0;
+}
+
+void print_latex_graph_preamble(FILE *f) {
+    fprintf(f, "\\documentclass[10pt]{article}\n");
+    fprintf(f, "\\usepackage[utf8]{inputenc}\n");
+    fprintf(f, "\\usepackage[T1]{fontenc}\n");
+    fprintf(f, "\\usepackage[french]{babel}\n");
+    fprintf(f, "\\usepackage{pgfplots}\n\n");
+    fprintf(f, "\\pgfplotsset{width=10cm}\n");
+    fprintf(f, "\\begin{document}\n");
+    fprintf(f, "\\begin{center}\n");
+    fprintf(f, "\\begin{tikzpicture}\n");
+}
+
+void print_latex_graph_end(FILE *f) {
+    fprintf(f, "\\end{tikzpicture}\n");
+    fprintf(f, "\\end{center}\n");
+    fprintf(f, "\\end{document}\n");
+}
+
+int print_population_latex(FILE *f, int n_strategies, char *data_file,
+                           struct strategy_entry *strategies)
+{
+    print_latex_graph_preamble(f);
+    print_population_graph(f, n_strategies, data_file, strategies);
+    print_latex_graph_end(f);
     return 0;
 }
 
