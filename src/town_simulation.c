@@ -25,8 +25,11 @@ void *population_process(void *data) {
 
 // just quit as soon as a message is sent, or connection is closed.
 // it's stupid, but it works
-void *monitor_com(void *_fd) {
-    int fd = (int)_fd;
+void *monitor_com(void *mon) {
+    int socket = open_listen_socket(4000);
+    int fd = wait_for_client(socket);
+    *(FILE **)mon = fdopen(fd, "w");
+
     char c;
     read(fd, &c, 1);
     exit(0);
@@ -46,22 +49,29 @@ int main(int argc, char **argv) {
     data.next = &next;
     data.done = &done;
 
-    int socket = open_listen_socket(4000);
-    int fd = wait_for_client(socket);
+    FILE *mon = NULL;
 
     pthread_t pop_t, mon_t;
     pthread_create(&pop_t, NULL, population_process, (void*)&data);
-    pthread_create(&mon_t, NULL, monitor_com, (void*)fd);
+    pthread_create(&mon_t, NULL, monitor_com, (void*)&mon);
 
-    FILE *mon = fdopen(fd, "w");
 
     for(step=0;;step++) {
-        fprintf(mon, "step %d\n", step);
-        for(int i=0; i<town->n_strategies; i++) {
-            if(!town->allowed[i]) continue;
-            fprintf(mon, "%s\t%ld\n", town->strategies[i].short_name, town->population[i]);
+        if(mon) {
+            fprintf(mon, "step %d\n", step);
+            for(int i=0; i<town->n_strategies; i++) {
+                if(!town->allowed[i]) continue;
+                fprintf(mon, "%s\t%ld\n", town->strategies[i].short_name, town->population[i]);
+            }
+            fprintf(mon, "\n");
+        } else {
+            printf("step %d\n", step);
+            for(int i=0; i<town->n_strategies; i++) {
+                if(!town->allowed[i]) continue;
+                printf("%s\t%ld\n", town->strategies[i].short_name, town->population[i]);
+            }
+            printf("\n");
         }
-        fprintf(mon, "\n");
         sem_post(&next);
         sleep(1);
         sem_wait(&done);
