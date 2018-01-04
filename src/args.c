@@ -8,30 +8,39 @@
 #define OPT_NAMES 256
 
 struct argp_option options[] = {
+    {0,0,0,0,
+"Strategies used in the simulation can be selected form the list of \
+standard strategies using --allow and --disallow. By default, all \
+strategies are allowed. If several options conflict for a strategy, \
+only the last is taken into account. Very short strategy names shall \
+be used with --allow and --disallow. See --names for the list of names.\n"},
     {"allow", 'a', "STRATS", 0,
 "Allow strategies in STRATS. STRATS shall be a comma separated list \
-of strategies given by their very short names. \
-See --names for the list of strategy names. \n\
+of strategies given by their very short names.\n\
 If STRATS is the string \"all\", all strategies are allowed.\n"},
+    {"disallow", 'd', "STRATS", 0,
+"Disallow strategies in STRATS. STRATS shall be a comma separated list \
+of strategies given by their very short names.\n\
+If STRATS is the string \"all\", all strategies are disallowed.\n"},
+    {"names", OPT_NAMES, 0, 0, "Print names for all standard strategies.\n", 2},
     {"pop", 'p', "[STRATS:]POP", 0,
 "Initial population for strategies in STRATS. STRATS shall be a comma \
 separated list of strategies given by their very short name. When used \
-without STRATS, it is applied to all strategies.\n"},
+without STRATS, it is applied to all strategies.\n", 3},
     {"rewards", 'r', "P,T,D,C", 0,
 "Set the reward values. Rewards are as follow :\n\
        | defect |  coop  |\n\
 defect | P    P | T    D |\n\
  coop  | D    T | C    C |\n\
 Default values are P=1, T=5, D=0, C=3.\n"},
-    {"names", OPT_NAMES, 0, 0, "Print names for all standard strategies.\n"},
     {0}
 };
 
-/** Parse argument for option 'allow' */
-int allow_strats(char *strats, struct town_descriptor *town) {
+/** Parse argument for option 'allow' and 'disallow' */
+int allow_strats(char *strats, struct town_descriptor *town, char allow) {
     if(!strcmp(strats, "all")) {
         for(int i=0; i<town->n_strategies; i++) {
-            town->allowed[i] = 1;
+            town->allowed[i] = allow;
         }
         return 0;
     }
@@ -41,7 +50,7 @@ int allow_strats(char *strats, struct town_descriptor *town) {
         char found = 0;
         for(int i=0; i<town->n_strategies; i++) {
             if(!strcmp(token, town->strategies[i].very_short_name)) {
-                town->allowed[i] = 1;
+                town->allowed[i] = allow;
                 found = 1;
             }
         }
@@ -139,7 +148,10 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
 
     switch(key) {
     case 'a':
-        allow_strats(arg, town);
+        allow_strats(arg, town, 1);
+        break;
+    case 'd':
+        allow_strats(arg, town, 0);
         break;
     case 'p':
         set_population(arg, town);
@@ -184,7 +196,7 @@ struct town_descriptor *parse_arguments(int argc, char **argv) {
     }
 
     for(int i=0; i<town->n_strategies; i++) {
-        town->allowed[i] = 0;
+        town->allowed[i] = 1;
         town->population[i] = 0;
     }
 
