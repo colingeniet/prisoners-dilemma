@@ -4,13 +4,17 @@
 #include <unistd.h>
 
 int main(int argc, char **argv) {
+    char host_name[] = "00.dptinfo.ens-cachan.fr";
     char command[500];
     int fd[24];
     for(int host=1; host<=1; host++) {
-        sprintf(command, "ssh %.2d.dptinfo.ens-cachan.fr '%s -p 100'", host, argv[1]);
-        system(command);
-        sprintf(command, "%.2d.dptinfo.ens-cachan.fr", host);
+        sprintf(host_name, "%.2d.dptinfo.ens-cachan.fr", host);
+        sprintf(command, "'%s -p 100'", argv[1]);
+        if(!fork()) {
+            execl("ssh", "ssh", host_name, command, NULL);
+        }
 
+        sprintf(command, "%.2d.dptinfo.ens-cachan.fr", host);
         int ret = connect_to_server(command, 4000);
         while(ret < 0) {
             sleep(5);
