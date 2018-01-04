@@ -62,12 +62,9 @@ int main(int argc, char **argv) {
 
     for(step=0;;step++) {
         if(mon) {
-            fprintf(mon, "step %d\n", step);
             for(int i=0; i<town->n_strategies; i++) {
-                if(!town->allowed[i]) continue;
-                fprintf(mon, "%s\t%ld\n", town->strategies[i].short_name, town->population[i]);
+                fprintf(mon, "%ld ", town->population[i]);
             }
-            fprintf(mon, "\n");
         } else {
             printf("step %d\n", step);
             for(int i=0; i<town->n_strategies; i++) {

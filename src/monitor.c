@@ -1,14 +1,19 @@
 #include "network.h"
+#include "strategies.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 
+#define N_HOSTS 1
+
 int main(int argc, char **argv) {
     char host_name[] = "00.dptinfo.ens-cachan.fr";
     char command[500];
-    int fd[24];
-    FILE *streams[24];
-    for(int host=1; host<=1; host++) {
+
+    int fd[N_HOSTS+1];
+    FILE *streams[N_HOSTS+1];
+
+    for(int host=1; host<=N_HOSTS; host++) {
         sprintf(host_name, "%.2d.dptinfo.ens-cachan.fr", host);
         sprintf(command, "%s -p 100", argv[1]);
         if(!fork()) {
@@ -30,7 +35,20 @@ int main(int argc, char **argv) {
     }
 
     char buffer[100];
-    while(fgets(buffer, 100, streams[1])) {
-        printf("%s", buffer);
+    while(1) {
+        for(int strat=0; strat<N_STRATEGIES; strat++) {
+            printf("\t%s", strategies[strat].short_name);
+        }
+        printf("\n");
+        for(int host=1; host<=N_HOSTS; host++) {
+            printf("%.2d", host);
+            for(int strat=0; strat<N_STRATEGIES; strat++) {
+                long pop;
+                scanf("%ld ", &pop);
+                printf("\t%ld", pop);
+            }
+            printf("\n");
+        }
+        printf("\n");
     }
 }
