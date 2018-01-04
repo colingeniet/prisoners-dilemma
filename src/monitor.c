@@ -10,7 +10,14 @@ int main(int argc, char **argv) {
         sprintf(command, "ssh %.2d.dptinfo.ens-cachan.fr '%s -p 100'", host, argv[1]);
         system(command);
         sprintf(command, "%.2d.dptinfo.ens-cachan.fr", host);
-        fd[host] = connect_to_server(command, 4000);
+
+        int ret = connect_to_server(command, 4000);
+        while(ret < 0) {
+            sleep(5);
+            connect_to_server(command, 4000);
+        }
+        fd[host] = ret;
+        printf("connected\n");
     }
 
     char buffer[100];

@@ -31,14 +31,11 @@ int connect_to_server(char *server, short port) {
 	sock_addr.sin_port = htons(port);
 
 	// connect
-    for(;;) {
-    	if(connect(sock,(struct sockaddr *)&sock_addr, sizeof(sock_addr)) < 0) {
-            fprintf(stderr, "Error : failed to connect to %s.\n", server);
-            return -1;
-        }
-    	return sock;
-        sleep(5);
+	if(connect(sock,(struct sockaddr *)&sock_addr, sizeof(sock_addr)) < 0) {
+        fprintf(stderr, "Error : failed to connect to %s.\n", server);
+        return -1;
     }
+	return sock;
 }
 
 int open_listen_socket(short port) {
