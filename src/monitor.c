@@ -11,14 +11,16 @@ int main(int argc, char **argv) {
         sprintf(host_name, "%.2d.dptinfo.ens-cachan.fr", host);
         sprintf(command, "'%s -p 100'", argv[1]);
         if(!fork()) {
-            execl("ssh", "ssh", host_name, command, NULL);
+            execlp("ssh", "ssh", host_name, command, NULL);
+            perror("monitor");
+            exit(EXIT_FAILURE);
         }
 
         sprintf(command, "%.2d.dptinfo.ens-cachan.fr", host);
-        int ret = connect_to_server(command, 4000);
+        int ret = -1;
         while(ret < 0) {
-            sleep(5);
-            connect_to_server(command, 4000);
+            sleep(1);
+            ret = connect_to_server(command, 4000);
         }
         fd[host] = ret;
         printf("connected\n");

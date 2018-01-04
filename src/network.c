@@ -20,7 +20,7 @@ int connect_to_server(char *server, short port) {
     // get server address
 	struct hostent *address = gethostbyname(server);
 	if (!address) {
-        fprintf(stderr, "Error : unknown address %s.\n", server);
+        fprintf(stderr, "Error : unknown address %s\n", server);
         return -1;
     }
 
@@ -32,7 +32,7 @@ int connect_to_server(char *server, short port) {
 
 	// connect
 	if(connect(sock,(struct sockaddr *)&sock_addr, sizeof(sock_addr)) < 0) {
-        fprintf(stderr, "Error : failed to connect to %s.\n", server);
+        fprintf(stderr, "Error : failed to connect to %s\n", server);
         return -1;
     }
 	return sock;
