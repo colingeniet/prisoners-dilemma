@@ -46,11 +46,10 @@ int main(int argc, char **argv) {
     data.next = &next;
     data.done = &done;
 
-    int fd;
     int socket = open_listen_socket(4000);
     if(socket < 0) exit(EXIT_FAILURE);
 
-    fd = wait_for_client(socket);
+    int fd = wait_for_client(socket);
     if(socket < 0) exit(EXIT_FAILURE);
 
     FILE *mon = fdopen(fd, "w");
@@ -58,6 +57,7 @@ int main(int argc, char **argv) {
         perror("town");
         exit(EXIT_FAILURE);
     }
+    setlinebuf(mon);
 
 
     pthread_t pop_t, mon_t;

@@ -25,11 +25,16 @@ int main(int argc, char **argv) {
         }
         fd[host] = ret;
         streams[host] = fdopen(fd[host], "r");
+        setlinebuf(streams[host]);
         printf("connected\n");
     }
 
-    char buffer[100];
+    int res;
+    while((res = fgetc(streams[1])) != EOF) {
+        putchar(res);
+    }
+    /*char buffer[100];
     while(fgets(buffer, 100, streams[1])) {
         printf("%s", buffer);
-    }
+    }*/
 }
