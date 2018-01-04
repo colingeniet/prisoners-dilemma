@@ -1,5 +1,6 @@
 #include "town.h"
 #include "strategies.h"
+#include "network.h"
 #include "args.h"
 #include <pthread.h>
 #include <semaphore.h>
@@ -20,6 +21,16 @@ void *population_process(void *data) {
     return NULL;
 }
 
+// just quit as soon as a message is sent, or connection is closed.
+void *monitor_com(void *data) {
+    int socket = open_listen_socket(4000);
+    int fd = wait_for_client(socket);
+
+    char c;
+    read(fd, &c, 1);
+    exit(0);
+}
+
 int main(int argc, char **argv) {
     struct town_descriptor *town = parse_arguments(argc, argv);
 
@@ -34,8 +45,9 @@ int main(int argc, char **argv) {
     data.next = &next;
     data.done = &done;
 
-    pthread_t thread;
-    pthread_create(&thread, NULL, population_process, (void*)&data);
+    pthread_t pop_t, mon_t;
+    pthread_create(&pop_t, NULL, population_process, (void*)&data);
+    pthread_create(&mon_t, NULL, monitor_com, NULL);
 
     for(int step=0;;step++) {
         printf("step %d\n", step);
