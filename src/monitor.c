@@ -34,20 +34,8 @@ int main(int argc, char **argv) {
         printf("connected\n");
     }
 
-    while(1) {
-        for(int strat=0; strat<N_STRATEGIES; strat++) {
-            printf("\t%s", strategies[strat].short_name);
-        }
-        printf("\n");
-        for(int host=1; host<=N_HOSTS; host++) {
-            printf("%.2d", host);
-            for(int strat=0; strat<N_STRATEGIES; strat++) {
-                long pop;
-                fscanf(streams[host], "%ld ", &pop);
-                printf("\t%ld", pop);
-            }
-            printf("\n");
-        }
-        printf("\n");
+    char buffer[100];
+    while(fgets(buffer, 100, streams[1])) {
+        printf("%s", buffer);
     }
 }
