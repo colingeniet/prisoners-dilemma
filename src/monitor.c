@@ -2,6 +2,7 @@
 #include "strategies.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <semaphore.h>
@@ -10,7 +11,7 @@
 
 
 struct mon_thread_data {
-    FILE *mon_stream;
+    char *host_name;
     long *pop;
     char *modified;
     sem_t *pop_sem;
@@ -20,9 +21,17 @@ void *update_pop(void *_data) {
     struct mon_thread_data *data = _data;
     long pop_tmp[N_STRATEGIES];
 
+    int fd = -1;
+    while(fd < 0) {
+        sleep(1);
+        fd = connect_to_server(data->host_name, 4000);
+    }
+    FILE *stream = fdopen(fd, "r");
+    setlinebuf(stream);
+
     while(1) {
         for(int strat=0; strat<N_STRATEGIES; strat++) {
-            fscanf(data->mon_stream, " %ld", &pop_tmp[strat]);
+            fscanf(stream, " %ld", &pop_tmp[strat]);
         }
         sem_wait(data->pop_sem);
         for(int strat=0; strat<N_STRATEGIES; strat++) {
@@ -34,19 +43,19 @@ void *update_pop(void *_data) {
 }
 
 int main(int argc, char **argv) {
+    // just to allocate the correct length
     char host_name[] = "00.dptinfo.ens-cachan.fr";
     char command[500];
 
-    int fd[N_HOSTS];
-    FILE *streams[N_HOSTS];
     long populations[N_HOSTS][N_STRATEGIES] = {0};
     struct mon_thread_data data[N_HOSTS];
     pthread_t threads[N_HOSTS];
-    char modified;
+    char modified = 1;
     sem_t pop_sem;
 
     sem_init(&pop_sem, 0, N_HOSTS);
 
+    // launch connection threads
     for(int host=0; host<N_HOSTS; host++) {
         sprintf(host_name, "%.2d.dptinfo.ens-cachan.fr", host+1);
         sprintf(command, "%s -p 100 -m 4000", argv[1]);
@@ -56,23 +65,19 @@ int main(int argc, char **argv) {
             exit(EXIT_FAILURE);
         }
 
-        sprintf(command, "%.2d.dptinfo.ens-cachan.fr", host+1);
-        int ret = -1;
-        while(ret < 0) {
-            sleep(1);
-            ret = connect_to_server(command, 4000);
+        data[host].host_name = malloc(strlen(host_name) + 1);
+        if(!data[host].host_name) {
+            perror("monitor");
+            exit(EXIT_FAILURE);
         }
-        fd[host] = ret;
-        streams[host] = fdopen(fd[host], "r");
-        setlinebuf(streams[host]);
-
-        data[host].mon_stream = streams[host];
+        strcpy(data[host].host_name, host_name);
         data[host].pop = populations[host];
         data[host].modified = &modified;
         data[host].pop_sem = &pop_sem;
         pthread_create(&threads[host], NULL, update_pop, &data[host]);
     }
 
+    // display results
     while(1) {
         while(!modified);
 
