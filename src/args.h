@@ -3,6 +3,11 @@
 
 #include "town.h"
 
-struct town_descriptor *parse_arguments(int argc, char **argv);
+struct argp_data {
+    struct town_descriptor *town;
+    short mon_port;
+};
+
+struct argp_data parse_arguments(int argc, char **argv);
 
 #endif /* end of include guard: ARGS_H_INCLUDED */

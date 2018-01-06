@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 
     for(int host=0; host<N_HOSTS; host++) {
         sprintf(host_name, "%.2d.dptinfo.ens-cachan.fr", host+1);
-        sprintf(command, "%s -p 100", argv[1]);
+        sprintf(command, "%s -p 100 -m 4000", argv[1]);
         if(!fork()) {
             execlp("ssh", "ssh", host_name, command, NULL);
             perror("monitor");
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
         }
         printf("\n");
         for(int host=0; host<N_HOSTS; host++) {
-            printf("%.2d", host);
+            printf("%.2d", host+1);
             for(int strat=0; strat<N_STRATEGIES; strat++) {
                 printf("\t%ld", populations[host][strat]);
             }
