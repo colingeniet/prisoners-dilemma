@@ -21,6 +21,7 @@ int connect_to_server(char *server, short port) {
 	struct hostent *address = gethostbyname(server);
 	if (!address) {
         fprintf(stderr, "Error : unknown address %s\n", server);
+        close(sock);
         return -1;
     }
 
@@ -33,6 +34,7 @@ int connect_to_server(char *server, short port) {
 	// connect
 	if(connect(sock,(struct sockaddr *)&sock_addr, sizeof(sock_addr)) < 0) {
         fprintf(stderr, "Error : failed to connect to %s\n", server);
+        close(sock);
         return -1;
     }
 	return sock;
@@ -55,10 +57,12 @@ int open_listen_socket(short port) {
     // bind socket and set in listen mode
     if(bind(sock,(struct sockaddr *)&sock_addr,sizeof(sock_addr)) < 0) {
         fprintf(stderr, "Error : bind on port %d failed.\n", port);
+        close(sock);
 		return -1;
 	}
     if(listen(sock,SOMAXCONN) < 0) {
         fprintf(stderr, "Error : failed to set socket in listen mode.\n");
+        close(sock);
         return -1;
     }
     return sock;

@@ -11,6 +11,7 @@
 
 struct mon_thread_data {
     char *host_name;
+    short port;
     long *pop;
     char *modified;
     sem_t *pop_sem;
@@ -20,26 +21,10 @@ void *update_pop(void *_data) {
     struct mon_thread_data *data = _data;
     long pop_tmp[N_STRATEGIES];
 
-    // split the host name
-    char *delim = strrchr(data->host_name, ':');
-    if(!delim) {
-        fprintf(stderr, "invalid host name : %s\n", data->host_name);
-        fprintf(stderr, "excepected syntax : HOSTNAME:PORT\n");
-        exit(EXIT_FAILURE);
-    }
-    *delim = '\0';
-    char *port_str = delim+1;
-    char *end;
-    short port = strtol(port_str, &end, 10);
-    if(*end) {
-        fprintf(stderr, "invalid port : %s\n", port_str);
-        exit(EXIT_FAILURE);
-    }
-
     int fd = -1;
     while(fd < 0) {
         sleep(1);
-        fd = connect_to_server(data->host_name, port);
+        fd = connect_to_server(data->host_name, data->port);
     }
     FILE *stream = fdopen(fd, "r");
     setlinebuf(stream);
@@ -78,7 +63,24 @@ int main(int argc, char **argv) {
 
     // launch connection threads
     for(int host=0; host<n_hosts; host++) {
+        // split the host name
+        char *delim = strrchr(host_names[host], ':');
+        if(!delim) {
+            fprintf(stderr, "invalid host name : %s\n", host_names[host]);
+            fprintf(stderr, "excepected syntax : HOSTNAME:PORT\n");
+            exit(EXIT_FAILURE);
+        }
+        *delim = '\0';
+        char *port_str = delim+1;
+        char *end;
+        short port = strtol(port_str, &end, 10);
+        if(*end) {
+            fprintf(stderr, "invalid port : %s\n", port_str);
+            exit(EXIT_FAILURE);
+        }
+
         data[host].host_name = host_names[host];
+        data[host].port = port;
         data[host].pop = populations[host];
         data[host].modified = &modified;
         data[host].pop_sem = &pop_sem;
@@ -87,6 +89,7 @@ int main(int argc, char **argv) {
 
     // display results
     while(1) {
+        sleep(1); // don't update too often
         while(!modified);
 
         for(int i=0; i<n_hosts; i++) {
@@ -116,7 +119,6 @@ int main(int argc, char **argv) {
         for(int i=0; i<n_hosts; i++) {
             sem_post(&pop_sem);
         }
-        sleep(1); // don't update too often
     }
 
     fail:

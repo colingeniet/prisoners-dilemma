@@ -13,30 +13,31 @@ struct argp_option options[] = {
 standard strategies using --allow and --disallow. By default, all \
 strategies are allowed. If several options conflict for a strategy, \
 only the last is taken into account. Very short strategy names shall \
-be used with --allow and --disallow. See --names for the list of names.\n"},
+be used with --allow and --disallow. See --names for the list of names."},
     {"allow", 'a', "STRATS", 0,
 "Allow strategies in STRATS. STRATS shall be a comma separated list \
 of strategies given by their very short names.\n\
-If STRATS is the string \"all\", all strategies are allowed.\n"},
+If STRATS is the string \"all\", all strategies are allowed."},
     {"disallow", 'd', "STRATS", 0,
 "Disallow strategies in STRATS. STRATS shall be a comma separated list \
 of strategies given by their very short names.\n\
-If STRATS is the string \"all\", all strategies are disallowed.\n"},
-    {"names", OPT_NAMES, 0, 0, "Print names for all standard strategies.\n", 2},
+If STRATS is the string \"all\", all strategies are disallowed."},
+    {"names", OPT_NAMES, 0, 0, "Print names for all standard strategies.", 2},
     {"pop", 'p', "[STRATS:]POP", 0,
-"Initial population for strategies in STRATS. STRATS shall be a comma \
+"Set initial population for strategies in STRATS. STRATS shall be a comma \
 separated list of strategies given by their very short name. When used \
-without STRATS, it is applied to all strategies.\n", 3},
+without STRATS, it is applied to all strategies.\n\
+If several option conflict for a strategy, only the last is taken into account", 3},
     {"rewards", 'r', "P,T,D,C", 0,
 "Set the reward values. Rewards are as follow :\n\
        | defect |  coop  |\n\
 defect | P    P | T    D |\n\
  coop  | D    T | C    C |\n\
-Default values are P=1, T=5, D=0, C=3.\n"},
+Default values are P=1, T=5, D=0, C=3.", 4},
     {"mon", 'm', "PORT", 0,
 "Accept a monitoring connection on PORT. If a connection is established, \
 simulation data will be sent to it, and is not printed. \n\
-Closing the connection cause the program to terminate.\n", 4},
+Closing the connection cause the program to terminate.", 5},
     {0}
 };
 

@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
+/* population simulation thread data */
 struct population_data {
     struct town_descriptor *town;
     sem_t *pop_lock;
@@ -15,20 +16,21 @@ struct population_data {
     sem_t *done;
 };
 
+/* monitor connection thread data */
 struct mon_data {
     FILE **mon;
     short port;
 };
 
-int step;
-
+/* thread wrapper for population_parallel */
 void *population_process(void *data) {
     struct population_data *arg = (struct population_data *)data;
     population_parallel(arg->town, arg->pop_lock, arg->next, arg->done);
     return NULL;
 }
 
-// establish connection, and quit if connection is closed.
+/* monitor connection thread :
+ * establish connection, and quit if connection is closed. */
 void *monitor_com(void *_data) {
     struct mon_data *data = _data;
     FILE **mon = data->mon;
@@ -36,16 +38,19 @@ void *monitor_com(void *_data) {
 
     if(port < 0) return NULL;
 
+    // create connection
     int socket = open_listen_socket(port);
     if(socket < 0) exit(EXIT_FAILURE);
 
     int fd = wait_for_client(socket);
     if(socket < 0) exit(EXIT_FAILURE);
 
+    // set global monitoring FILE
     *mon = fdopen(fd, "w");
     setlinebuf(*mon);
 
     char c;
+    // wait 
     while(read(fd, &c, 1) > 0);
     exit(0);
 }
@@ -78,7 +83,7 @@ int main(int argc, char **argv) {
         while(!mon);
     }
 
-    for(step=0;;step++) {
+    for(int step=0;;step++) {
         if(mon) {
             for(int i=0; i<town->n_strategies; i++) {
                 fprintf(mon, "%ld ", town->population[i]);
