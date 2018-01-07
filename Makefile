@@ -21,7 +21,7 @@ populations : $(addprefix $(OBJSDIR),populations_simulation.o strategies.o \
 town : $(addprefix $(OBJSDIR),town_simulation.o town.o network.o utils.o \
 		 strategies.o args.o network.o)
 
-monitor : $(addprefix $(OBJSDIR), monitor.o network.o strategies.o)
+monitor : $(addprefix $(OBJSDIR), monitor.o network.o strategies.o utils.o)
 
 ###
 
