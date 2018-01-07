@@ -9,6 +9,7 @@
 #include <semaphore.h>
 
 
+/* monitoring connection thread data */
 struct mon_thread_data {
     char *host_name;
     short port;
@@ -17,22 +18,29 @@ struct mon_thread_data {
     sem_t *pop_sem;
 };
 
+/* monitoring connection : wait for data from monitored town,
+ * and update the population array */
 void *update_pop(void *_data) {
     struct mon_thread_data *data = _data;
+    /* the population array is only updated when all the values for
+     * one step have been received.
+     * This array is used to temporarely store them. */
     long pop_tmp[N_STRATEGIES];
 
+    // try to connect
     int fd = -1;
     while(fd < 0) {
         sleep(1);
         fd = connect_to_server(data->host_name, data->port);
     }
     FILE *stream = fdopen(fd, "r");
-    setlinebuf(stream);
 
     while(1) {
+        // wait for data
         for(int strat=0; strat<N_STRATEGIES; strat++) {
             fscanf(stream, " %ld", &pop_tmp[strat]);
         }
+        // update
         sem_wait(data->pop_sem);
         for(int strat=0; strat<N_STRATEGIES; strat++) {
             data->pop[strat] = pop_tmp[strat];
@@ -53,11 +61,11 @@ int main(int argc, char **argv) {
     sem_t pop_sem;
 
     populations = multi_mallocv(2, n_hosts, N_STRATEGIES*sizeof(long));
-    if(!populations) goto fail;
+    if(!populations) goto fail_perror;
     data = malloc(n_hosts * sizeof(struct mon_thread_data));
-    if(!data) goto fail;
+    if(!data) goto fail_perror;
     threads = malloc(n_hosts * sizeof(pthread_t));
-    if(!threads) goto fail;
+    if(!threads) goto fail_perror;
 
     sem_init(&pop_sem, 0, n_hosts);
 
@@ -68,7 +76,7 @@ int main(int argc, char **argv) {
         if(!delim) {
             fprintf(stderr, "invalid host name : %s\n", host_names[host]);
             fprintf(stderr, "excepected syntax : HOSTNAME:PORT\n");
-            exit(EXIT_FAILURE);
+            goto fail;
         }
         *delim = '\0';
         char *port_str = delim+1;
@@ -76,7 +84,7 @@ int main(int argc, char **argv) {
         short port = strtol(port_str, &end, 10);
         if(*end) {
             fprintf(stderr, "invalid port : %s\n", port_str);
-            exit(EXIT_FAILURE);
+            goto fail;
         }
 
         data[host].host_name = host_names[host];
@@ -121,9 +129,10 @@ int main(int argc, char **argv) {
         }
     }
 
-    fail:
+    fail_perror:
     perror("monitor");
-    fprintf(stderr, "Fatal error in monitor : Warning, monitored processes will \
+    fail:
+    fprintf(stderr, "Fatal error in monitor - Warning, monitored processes may \
 not be terminated automatically.\n");
     exit(EXIT_FAILURE);
 }

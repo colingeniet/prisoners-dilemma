@@ -47,10 +47,9 @@ void *monitor_com(void *_data) {
 
     // set global monitoring FILE
     *mon = fdopen(fd, "w");
-    setlinebuf(*mon);
 
     char c;
-    // wait 
+    // wait
     while(read(fd, &c, 1) > 0);
     exit(0);
 }
@@ -86,9 +85,13 @@ int main(int argc, char **argv) {
     for(int step=0;;step++) {
         if(mon) {
             for(int i=0; i<town->n_strategies; i++) {
-                fprintf(mon, "%ld ", town->population[i]);
+                if(town->allowed[i]) {
+                    fprintf(mon, "%ld ", town->population[i]);
+                } else {
+                    fprintf(mon, "0 ");
+                }
             }
-            fprintf(mon, "\n");
+            fflush(mon);
         } else {
             printf("step %d\n", step);
             for(int i=0; i<town->n_strategies; i++) {
