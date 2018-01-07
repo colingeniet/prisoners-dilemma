@@ -1,15 +1,18 @@
 #!/bin/bash
 
+# Settings
+# executable path on distant host
 town_exec=~/prisoners-dilemma/town
+# options
 town_options='-p 100'
+# monitoring port
 mon_port=4000
 
-mon_args=""
 
+mon_args=
 for host in {1..23}; do
     host_name=$(printf "%.2d.dptinfo.ens-cachan.fr" "${host}")
     mon_args="${mon_args} ${host_name}:${mon_port}"
     ssh "${host_name}" "${town_exec} ${town_options} -m ${mon_port}" &
 done
-
 ./monitor ${mon_args}
