@@ -48,7 +48,7 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
 
     // main loop
     for(int step=0;;step++) {
-        sem_wait(next);
+        if(next) sem_wait(next);
 
         // reallocate memory if needed
         if(step > steps_alloc) {
@@ -82,7 +82,8 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
         }
 
         // calculate scores
-        sem_wait(pop_lock);     // population values need to be stable
+        // population values need to be stable
+        if(pop_lock) sem_wait(pop_lock);
         for(int i=0; i<town->n_strategies; i++) {
             if(!town->allowed[i]) continue;
             scores[i] = 0;
@@ -117,7 +118,7 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
             }
         }
 
-        sem_post(pop_lock);
-        sem_post(done);
+        if(pop_lock) sem_post(pop_lock);
+        if(done) sem_post(done);
     }
 }

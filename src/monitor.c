@@ -116,6 +116,7 @@ int main(int argc, char **argv) {
         for(int i=0; i<n_hosts; i++) {
             sem_post(&pop_sem);
         }
+        sleep(1); // don't update too often
     }
 
     fail:
