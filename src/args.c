@@ -39,7 +39,8 @@ defect | P    P | T    D |\n\
 Default values are P=1, T=5, D=0, C=3.", 4},
 
     {"neighbour", 'n', "HOST:PORT", 0,
-"Add a neighbour town.", 5},
+"Add a neighbour town. The town will connect to that neighbour, \
+and randomly send migrants.", 5},
 
     {"mon", 'm', "PORT", 0,
 "Accept a monitoring connection on PORT. If a connection is established, \
