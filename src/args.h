@@ -9,6 +9,8 @@ struct argp_data {
     struct town_descriptor *town;
     /** The monitoring port. -1 if none. */
     short mon_port;
+    /** port for neighbours incomming connections */
+    short in_port;
     /** The array of neighbour towns. */
     char **neighbours;
     short *neighbour_ports;

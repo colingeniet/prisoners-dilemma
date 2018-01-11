@@ -38,9 +38,11 @@ defect | P    P | T    D |\n\
  coop  | D    T | C    C |\n\
 Default values are P=1, T=5, D=0, C=3.", 4},
 
-    {"neighbour", 'n', "HOST:PORT", 0,
+    {"out", 'o', "HOST:PORT", 0,
 "Add a neighbour town. The town will connect to that neighbour, \
 and randomly send migrants.", 5},
+    {"in", 'i', "PORT", 0,
+"Allow connections from neighbours on PORT."},
 
     {"mon", 'm', "PORT", 0,
 "Accept a monitoring connection on PORT. If a connection is established, \
@@ -226,7 +228,10 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
     case 'm':
         data->mon_port = get_port(arg);
         break;
-    case 'n':
+    case 'i':
+        data->in_port = get_port(arg);
+        break;
+    case 'o':
         add_neighbour(arg, data);
         break;
     default:
@@ -261,6 +266,7 @@ struct argp_data parse_arguments(int argc, char **argv) {
 
     data.town = town;
     data.mon_port = -1;
+    data.in_port = -1;
     data.neighbours = NULL;
     data.neighbour_ports = NULL;
     data.n_neighbours = 0;
