@@ -214,6 +214,14 @@ Chaque paramètre \verb|HOST| doit être de la forme \verb|HOSTNAME:PORT|.
 Le programme tente de se connecter à \verb|HOSTNAME| sur le port \verb|PORT| pour afficher l'état de la population simulée sur \verb|HOSTNAME|.
 Pour cela, \verb|town| doit avoir été lancé sur \verb|HOSTNAME| avec l'option \verb|-m PORT|.
 
+Par exemple :
+\begin{verbatim}
+$ ./town -p 100 -m 4000 & ./monitor localhost:4000
+\end{verbatim}
+lance localement la simulation d'une ville et d'un moniteur pour contrôler sa population, connecté sur le port 4000.
+
+Lorsque \verb|monitor| se termine, toutes les villes connectées au moniteur sont automatiquement terminées.
+
 \subsubsection{Scripts de déploiement}
 
 \end{document}
