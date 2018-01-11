@@ -38,7 +38,10 @@ void *update_pop(void *_data) {
     while(1) {
         // wait for data
         for(int strat=0; strat<N_STRATEGIES; strat++) {
-            fscanf(stream, " %ld", &pop_tmp[strat]);
+            if(fscanf(stream, " %ld", &pop_tmp[strat]) == EOF) {
+                fprintf(stderr, "connection with %s closed.\n", data->host_name);
+                return NULL;
+            }
         }
         // update
         sem_wait(data->pop_sem);
