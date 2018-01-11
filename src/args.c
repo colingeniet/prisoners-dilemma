@@ -22,22 +22,29 @@ If STRATS is the string \"all\", all strategies are allowed."},
 "Disallow strategies in STRATS. STRATS shall be a comma separated list \
 of strategies given by their very short names.\n\
 If STRATS is the string \"all\", all strategies are disallowed."},
+
     {"names", OPT_NAMES, 0, 0, "Print names for all standard strategies.", 2},
+
     {"pop", 'p', "[STRATS:]POP", 0,
 "Set initial population for strategies in STRATS. STRATS shall be a comma \
 separated list of strategies given by their very short name. When used \
 without STRATS, it is applied to all strategies.\n\
 If several option conflict for a strategy, only the last is taken into account", 3},
+
     {"rewards", 'r', "P,T,D,C", 0,
 "Set the reward values. Rewards are as follow :\n\
        | defect |  coop  |\n\
 defect | P    P | T    D |\n\
  coop  | D    T | C    C |\n\
 Default values are P=1, T=5, D=0, C=3.", 4},
+
+    {"neighbour", 'n', "HOST:PORT", 0,
+"Add a neighbour town.", 5},
+
     {"mon", 'm', "PORT", 0,
 "Accept a monitoring connection on PORT. If a connection is established, \
 simulation data will be sent to it, and is not printed. \n\
-Closing the connection cause the program to terminate.", 5},
+Closing the connection cause the program to terminate.", 6},
     {0}
 };
 
@@ -159,6 +166,41 @@ void print_names(struct town_descriptor *town) {
     }
 }
 
+/** add a neighbour to the neighbours array */
+void add_neighbour(char *host, struct argp_data *data) {
+    // split the host name
+    char *delim = strrchr(host, ':');
+    if(!delim) {
+        fprintf(stderr, "invalid host name : %s\n", host);
+        fprintf(stderr, "excepected syntax : HOST:PORT\n");
+        exit(EXIT_FAILURE);
+    }
+    *delim = '\0';
+    char *port_str = delim+1;
+    char *end;
+    short port = strtol(port_str, &end, 10);
+    if(*end) {
+        fprintf(stderr, "invalid port : %s\n", port_str);
+        exit(EXIT_FAILURE);
+    }
+
+    // reallocation
+    if(data->n_neighbours >= data->neighbours_alloc) {
+        int new_size = (data->neighbours_alloc ? 2*data->neighbours_alloc : 1);
+        data->neighbours = realloc(data->neighbours, new_size * sizeof(char*));
+        data->neighbour_ports = realloc(data->neighbour_ports, new_size * sizeof(short));
+        if(!data->neighbours || !data->neighbour_ports) {
+            perror("args");
+            exit(EXIT_FAILURE);
+        }
+        data->neighbours_alloc = new_size;
+    }
+
+    data->neighbours[data->n_neighbours] = host;
+    data->neighbour_ports[data->n_neighbours] = port;
+    data->n_neighbours++;
+}
+
 error_t parse_opt(int key, char *arg, struct argp_state *state) {
     struct argp_data *data = state->input;
     struct town_descriptor *town = data->town;
@@ -182,6 +224,9 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
         break;
     case 'm':
         data->mon_port = get_port(arg);
+        break;
+    case 'n':
+        add_neighbour(arg, data);
         break;
     default:
         return ARGP_ERR_UNKNOWN;
@@ -215,6 +260,10 @@ struct argp_data parse_arguments(int argc, char **argv) {
 
     data.town = town;
     data.mon_port = -1;
+    data.neighbours = NULL;
+    data.neighbour_ports = NULL;
+    data.n_neighbours = 0;
+    data.neighbours_alloc = 0;
 
     argp_parse(&argp, argc, argv, 0, 0, &data);
 

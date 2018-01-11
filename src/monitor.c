@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
         char *delim = strrchr(host_names[host], ':');
         if(!delim) {
             fprintf(stderr, "invalid host name : %s\n", host_names[host]);
-            fprintf(stderr, "excepected syntax : HOSTNAME:PORT\n");
+            fprintf(stderr, "excepected syntax : HOST:PORT\n");
             goto fail;
         }
         *delim = '\0';

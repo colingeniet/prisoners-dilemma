@@ -9,6 +9,11 @@ struct argp_data {
     struct town_descriptor *town;
     /** The monitoring port. -1 if none. */
     short mon_port;
+    /** The array of neighbour towns. */
+    char **neighbours;
+    short *neighbour_ports;
+    int n_neighbours;
+    int neighbours_alloc;
 };
 
 /** Set program parameters according to command line options. */
