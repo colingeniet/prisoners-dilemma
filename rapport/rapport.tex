@@ -8,7 +8,7 @@
 \usepackage{pgfplots}
 \pgfplotsset{width=10cm}
 
-\title{Projet Architecture --- Système}
+\title{Dilemme du prisonnier \\ Projet Architecture --- Système}
 \author{Yoan Geran \and Colin Geniet}
 \begin{document}
 \maketitle
@@ -164,6 +164,56 @@ Le résultat correspond alors au comportement limite, pour des populations grand
 \end{center}
 \end{figure}
 
+\newpage
 \section{Simulation distribuée}
+\subsection{Usage}
+\subsubsection*{résumé}
+Compilation :
+\begin{verbatim}
+$ make
+\end{verbatim}
+
+\verb|./town| simule une ville, et \verb|./monitor| contrôle l'évolution de la population de plusieurs villes en temps réel.
+Les scripts \verb|deploy_all|, \verb|deploy_custom| sont des exemples de déploiement sur les machines de la salle 411.
+
+\subsubsection{Simulation d'une ville}
+L'exécutable \verb|town| simule une ville, avec la possibilité de modifier les stratégies autorisées,
+les valeurs des récompenses, et les populations initiales. Par défaut, l'évolution des populations
+est affichées sur la sortie standard.
+
+Par exemple :
+\begin{verbatim}
+$ ./town -p 100 -p dd:200 -d m,pg -r 2,8,0,4
+\end{verbatim}
+lance la simulation avec les options :
+\begin{description}
+\item[\tt{-p 100}] : population initiale de 100 pour toutes les stratégies.
+\item[\tt{-p dd:200}] : population initiale de 200 pour la stratégie `donnant-donnant'.
+\item[\tt{-d m,pg}] : les stratégies `méchante' et `périodique gentille' sont interdites.
+\item[\tt{-r 2,8,0,4}] : récompenses $P=2$, $T=8$, $D=0$, $C=4$.
+\end{description}
+
+La totalité des options est décrite dans
+\begin{verbatim}
+$ ./town --help
+\end{verbatim}
+
+Les abréviations utilisées pour les noms de stratégies sont décrites par
+\begin{verbatim}
+$ ./town --names
+\end{verbatim}
+
+\subsubsection{Moniteur}
+L'exécutable \verb|monitor| sert à contrôler l'évolution de la population de plusieurs villes sur des machines distantes.
+
+Utilisation :
+\begin{verbatim}
+$ ./monitor [HOST...]
+\end{verbatim}
+Chaque paramètre \verb|HOST| doit être de la forme \verb|HOSTNAME:PORT|.
+Le programme tente de se connecter à \verb|HOSTNAME| sur le port \verb|PORT| pour afficher l'état de la population simulée sur \verb|HOSTNAME|.
+Pour cela, \verb|town| doit avoir été lancé sur \verb|HOSTNAME| avec l'option \verb|-m PORT|.
+
+\subsubsection{Scripts de déploiement}
 
 \end{document}

@@ -13,28 +13,34 @@ struct argp_option options[] = {
 standard strategies using --allow and --disallow. By default, all \
 strategies are allowed. If several options conflict for a strategy, \
 only the last is taken into account. Very short strategy names shall \
-be used with --allow and --disallow. See --names for the list of names.\n"},
+be used with --allow and --disallow. See --names for the list of names."},
     {"allow", 'a', "STRATS", 0,
 "Allow strategies in STRATS. STRATS shall be a comma separated list \
 of strategies given by their very short names.\n\
-If STRATS is the string \"all\", all strategies are allowed.\n"},
+If STRATS is the string \"all\", all strategies are allowed."},
     {"disallow", 'd', "STRATS", 0,
 "Disallow strategies in STRATS. STRATS shall be a comma separated list \
 of strategies given by their very short names.\n\
-If STRATS is the string \"all\", all strategies are disallowed.\n"},
-    {"names", OPT_NAMES, 0, 0, "Print names for all standard strategies.\n", 2},
+If STRATS is the string \"all\", all strategies are disallowed."},
+    {"names", OPT_NAMES, 0, 0, "Print names for all standard strategies.", 2},
     {"pop", 'p', "[STRATS:]POP", 0,
-"Initial population for strategies in STRATS. STRATS shall be a comma \
+"Set initial population for strategies in STRATS. STRATS shall be a comma \
 separated list of strategies given by their very short name. When used \
-without STRATS, it is applied to all strategies.\n", 3},
+without STRATS, it is applied to all strategies.\n\
+If several option conflict for a strategy, only the last is taken into account", 3},
     {"rewards", 'r', "P,T,D,C", 0,
 "Set the reward values. Rewards are as follow :\n\
        | defect |  coop  |\n\
 defect | P    P | T    D |\n\
  coop  | D    T | C    C |\n\
-Default values are P=1, T=5, D=0, C=3.\n"},
+Default values are P=1, T=5, D=0, C=3.", 4},
+    {"mon", 'm', "PORT", 0,
+"Accept a monitoring connection on PORT. If a connection is established, \
+simulation data will be sent to it, and is not printed. \n\
+Closing the connection cause the program to terminate.", 5},
     {0}
 };
+
 
 /** Parse argument for option 'allow' and 'disallow' */
 int allow_strats(char *strats, struct town_descriptor *town, char allow) {
@@ -132,6 +138,16 @@ int set_rewards(char *arg, struct town_descriptor *town) {
     return 0;
 }
 
+short get_port(char *arg) {
+    char *end;
+    long val = strtol(arg, &end, 0);
+    if(*end) {
+        fprintf(stderr, "Unexpected value : %s\n", arg);
+        exit(EXIT_FAILURE);
+    }
+    return val;
+}
+
 void print_names(struct town_descriptor *town) {
     printf("strategy names :\n");
     printf("very short\tshort\t\tfull\n");
@@ -144,7 +160,8 @@ void print_names(struct town_descriptor *town) {
 }
 
 error_t parse_opt(int key, char *arg, struct argp_state *state) {
-    struct town_descriptor *town = state->input;
+    struct argp_data *data = state->input;
+    struct town_descriptor *town = data->town;
 
     switch(key) {
     case 'a':
@@ -163,6 +180,9 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
         print_names(town);
         exit(EXIT_SUCCESS);
         break;
+    case 'm':
+        data->mon_port = get_port(arg);
+        break;
     default:
         return ARGP_ERR_UNKNOWN;
     }
@@ -171,36 +191,41 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
 
 struct argp argp = {options, parse_opt};
 
-struct town_descriptor *parse_arguments(int argc, char **argv) {
+struct argp_data parse_arguments(int argc, char **argv) {
+    struct argp_data data;
+
     // creates new town descriptor with default values
     struct town_descriptor *town = malloc(sizeof(struct town_descriptor));
-    if(!town) {
-        perror("parse_arguments");
-        return NULL;
-    }
+    if(!town) goto fail;
     town->n_strategies = N_STRATEGIES;
     town->strategies = strategies;
     town->rewards = &default_rewards;
+    town->allowed = NULL;
+    town->population = NULL;
+
     town->allowed = malloc(town->n_strategies * sizeof(char));
-    if(!town->allowed) {
-        perror("parse_arguments");
-        free(town);
-        return NULL;
-    }
+    if(!town->allowed) goto fail;
     town->population = malloc(town->n_strategies * sizeof(long));
-    if(!town->allowed) {
-        perror("parse_arguments");
-        free(town->allowed);
-        free(town);
-        return NULL;
-    }
+    if(!town->allowed) goto fail;
 
     for(int i=0; i<town->n_strategies; i++) {
         town->allowed[i] = 1;
         town->population[i] = 0;
     }
 
-    argp_parse(&argp, argc, argv, 0, 0, town);
+    data.town = town;
+    data.mon_port = -1;
 
-    return town;
+    argp_parse(&argp, argc, argv, 0, 0, &data);
+
+    return data;
+
+    fail:
+    perror("parse_arguments");
+    if(town) {
+        free(town->allowed);
+        free(town->population);
+        free(town);
+    }
+    exit(EXIT_FAILURE);
 }
