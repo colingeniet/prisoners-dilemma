@@ -86,10 +86,12 @@ int main(int argc, char **argv) {
     data.next = &next;
     data.done = &done;
 
+    // launch population thread
     pthread_t pop_t;
     pthread_create(&pop_t, NULL, population_process, (void*)&data);
     pthread_detach(pop_t);
 
+    // launch neighbours incomming connection thread
     struct neighbours_data neighbours_dt = {town, &pop_lock, in_port};
     if(in_port >= 0) {
         pthread_t neighbours_t;
@@ -98,6 +100,7 @@ int main(int argc, char **argv) {
         pthread_detach(neighbours_t);
     }
 
+    // launch monitoring connection thread
     FILE *mon = NULL;
     struct mon_data mon_dt = {&mon, mon_port};
     if(mon_port >= 0) {

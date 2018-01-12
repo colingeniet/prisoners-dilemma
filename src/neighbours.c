@@ -25,6 +25,7 @@ void handle_neighbour(struct town_descriptor *town, sem_t *pop_lock, int sock) {
         if(fscanf(com, " %s %ld", strat_name, &pop) != 2) continue;
 
         for(int strat=0; strat<town->n_strategies; strat++) {
+            if(!town->allowed[strat]) continue;
             if(!strcmp(strat_name, town->strategies[strat].very_short_name)) {
                 sem_wait(pop_lock);
                 town->population[strat] += pop;
