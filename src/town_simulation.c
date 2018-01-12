@@ -2,6 +2,7 @@
 #include "strategies.h"
 #include "network.h"
 #include "args.h"
+#include "neighbours.h"
 #include <pthread.h>
 #include <semaphore.h>
 #include <stdlib.h>
@@ -26,6 +27,20 @@ struct mon_data {
 void *population_process(void *data) {
     struct population_data *arg = (struct population_data *)data;
     population_parallel(arg->town, arg->pop_lock, arg->next, arg->done);
+    return NULL;
+}
+
+/* thread data for accept_neighbours */
+struct neighbours_data {
+    struct town_descriptor *town;
+    sem_t *pop_lock;
+    short port;
+};
+
+/* thread wrapper for accept_neighbours */
+void *accept_neighbours_process(void *data) {
+    struct neighbours_data *arg = (struct neighbours_data *)data;
+    accept_neighbours(arg->town, arg->pop_lock, arg->port);
     return NULL;
 }
 
@@ -58,6 +73,7 @@ int main(int argc, char **argv) {
     struct argp_data option_data = parse_arguments(argc, argv);
     struct town_descriptor *town = option_data.town;
     short mon_port = option_data.mon_port;
+    short in_port = option_data.in_port;
 
     sem_t pop_lock, next, done;
     sem_init(&pop_lock, 0, 1);
@@ -74,15 +90,25 @@ int main(int argc, char **argv) {
     pthread_create(&pop_t, NULL, population_process, (void*)&data);
     pthread_detach(pop_t);
 
+    struct neighbours_data neighbours_dt = {town, &pop_lock, in_port};
+    if(in_port >= 0) {
+        pthread_t neighbours_t;
+        pthread_create(&neighbours_t, NULL, accept_neighbours_process,
+                       (void*)&neighbours_dt);
+        pthread_detach(neighbours_t);
+    }
+
     FILE *mon = NULL;
     struct mon_data mon_dt = {&mon, mon_port};
-    pthread_t mon_t;
-    if(mon_port >= 0) {    
+    if(mon_port >= 0) {
+        pthread_t mon_t;
         pthread_create(&mon_t, NULL, monitor_com, (void*)&mon_dt);
         pthread_detach(mon_t);
         // wait for connection
         while(!mon);
     }
+
+
 
     for(int step=0;;step++) {
         if(mon) {
