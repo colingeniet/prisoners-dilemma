@@ -70,14 +70,16 @@ int main(int argc, char **argv) {
     data.next = &next;
     data.done = &done;
 
+    pthread_t pop_t;
+    pthread_create(&pop_t, NULL, population_process, (void*)&data);
+    pthread_detach(pop_t);
+
     FILE *mon = NULL;
     struct mon_data mon_dt = {&mon, mon_port};
-
-    pthread_t pop_t, mon_t;
-    pthread_create(&pop_t, NULL, population_process, (void*)&data);
-    pthread_create(&mon_t, NULL, monitor_com, (void*)&mon_dt);
-
-    if(mon_port >= 0) {
+    pthread_t mon_t;
+    if(mon_port >= 0) {    
+        pthread_create(&mon_t, NULL, monitor_com, (void*)&mon_dt);
+        pthread_detach(mon_t);
         // wait for connection
         while(!mon);
     }

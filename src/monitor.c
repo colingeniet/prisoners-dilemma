@@ -96,6 +96,7 @@ int main(int argc, char **argv) {
         data[host].modified = &modified;
         data[host].pop_sem = &pop_sem;
         pthread_create(&threads[host], NULL, update_pop, &data[host]);
+        pthread_detach(threads[host]);
     }
 
     // display results
