@@ -27,7 +27,9 @@ void handle_neighbour(struct town_descriptor *town, sem_t *pop_lock, int sock) {
     for(;;) {
         long pop;
         char strat_name[10];
-        if(fscanf(com, " %s %ld", strat_name, &pop) != 2) continue;
+        int ret = fscanf(com, " %s %ld", strat_name, &pop);
+        if(ret == EOF) return;      // connection closed, or error
+        else if(ret != 2) continue; // invalid input
 
         for(int strat=0; strat<town->n_strategies; strat++) {
             if(!town->allowed[strat]) continue;
@@ -97,7 +99,10 @@ int send_migrants(struct town_descriptor *town, long *migrants, sem_t *mig_lock,
     // receive allowed strategies
     char strat_name[10];
     for(;;) {
-        fscanf(com, " %9s", strat_name);
+        int ret = fscanf(com, " %9s", strat_name);
+        if(ret == EOF) return -1;
+        else if(ret != 1) continue; // invalid input
+
         if(!strcmp(strat_name, "end")) break;
 
         for(int strat=0; strat<town->n_strategies; strat++) {
