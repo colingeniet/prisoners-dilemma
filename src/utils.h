@@ -30,15 +30,20 @@ void* multi_malloc_var(size_t dimensions, va_list sizes);
  * @param mem the array to free.
  * @param dimensions the number of dimensions of `mem`.
  * @param sizes the dimensions of `mem` as an array
- *   of size `dimensions - 1`. The last dimensions may be ommited. */
+ *   of size `dimensions - 1`. The last dimension may be ommited. */
 void multi_free(void *mem, size_t dimensions, size_t *sizes);
+
+/** Allocate a multidimentionnal array.
+ * @param dimensions the number of dimensions requested.
+ * @param ... `dimensions - 1` arguments of type `size_t`.
+ *   The last dimesion may be ommited */
 void multi_freev(void *mem, size_t dimensions, ...);
 
 /** Free a multidimentionnal array.
  * @param mem the array to free.
  * @param dimensions the number of dimensions of `mem`.
  * @param sizes the dimensions of `mem` as an argument list
- *   of length `dimensions - 1`. The last dimensions may be ommited. */
+ *   of length `dimensions - 1`. The last dimension may be ommited. */
 void multi_free_var(void *mem, size_t dimensions, va_list sizes);
 
 #endif /* end of include guard: UTILS_H_INCLUDED */
