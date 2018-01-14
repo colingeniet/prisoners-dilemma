@@ -11,4 +11,7 @@
  * @result -1 on error. Does not return if nothing fails. */
 int accept_neighbours(struct town_descriptor *town, sem_t *pop_lock, short port);
 
+int send_migrants(struct town_descriptor *town, long *migrants, sem_t *mig_lock,
+                  char *destination, short port, char *allowed, sem_t *send);
+
 #endif /* end of include guard: NEIGHBOURS_H_INCLUDED */

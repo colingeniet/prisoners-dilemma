@@ -17,21 +17,16 @@ struct population_data {
     sem_t *done;
 };
 
-/* monitor connection thread data */
-struct mon_data {
-    FILE **mon;
-    short port;
-};
-
 /* thread wrapper for population_parallel */
 void *population_process(void *data) {
     struct population_data *arg = (struct population_data *)data;
     population_parallel(arg->town, arg->pop_lock, arg->next, arg->done);
-    return NULL;
+    // process is not supposed to stop
+    exit(EXIT_FAILURE);
 }
 
 /* thread data for accept_neighbours */
-struct neighbours_data {
+struct accept_neighbours_data {
     struct town_descriptor *town;
     sem_t *pop_lock;
     short port;
@@ -39,10 +34,18 @@ struct neighbours_data {
 
 /* thread wrapper for accept_neighbours */
 void *accept_neighbours_process(void *data) {
-    struct neighbours_data *arg = (struct neighbours_data *)data;
+    struct accept_neighbours_data *arg = (struct accept_neighbours_data *)data;
     accept_neighbours(arg->town, arg->pop_lock, arg->port);
-    return NULL;
+    // process is not supposed to stop
+    exit(EXIT_FAILURE);
 }
+
+
+/* monitor connection thread data */
+struct mon_data {
+    FILE **mon;
+    short port;
+};
 
 /* monitor connection thread :
  * establish connection, and quit if connection is closed. */
@@ -66,8 +69,9 @@ void *monitor_com(void *_data) {
     char c;
     // wait
     while(read(fd, &c, 1) > 0);
-    exit(0);
+    exit(EXIT_SUCCESS);
 }
+
 
 int main(int argc, char **argv) {
     struct argp_data option_data = parse_arguments(argc, argv);
@@ -92,11 +96,10 @@ int main(int argc, char **argv) {
     pthread_detach(pop_t);
 
     // launch neighbours incomming connection thread
-    struct neighbours_data neighbours_dt = {town, &pop_lock, in_port};
+    struct accept_neighbours_data accept_dt = {town, &pop_lock, in_port};
     if(in_port >= 0) {
         pthread_t neighbours_t;
-        pthread_create(&neighbours_t, NULL, accept_neighbours_process,
-                       (void*)&neighbours_dt);
+        pthread_create(&neighbours_t, NULL, accept_neighbours_process, (void*)&accept_dt);
         pthread_detach(neighbours_t);
     }
 
