@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include <unistd.h>
 
 
 /* handle the connection from a neighbour, and modify population as needed. */
@@ -85,9 +86,10 @@ int accept_neighbours(struct town_descriptor *town, sem_t *pop_lock, short port)
 
 int send_migrants(struct town_descriptor *town, long *migrants, sem_t *mig_lock,
                   char *destination, short port, char *allowed, sem_t *send) {
-    int sock = connect_to_server(destination, port);
-    if(sock < 0) {
-        return -1;
+    int sock = -1;
+    while(sock < 0) {
+        sleep(1);
+        sock = connect_to_server(destination, port);
     }
 
     FILE *com = fdopen(sock, "r+");

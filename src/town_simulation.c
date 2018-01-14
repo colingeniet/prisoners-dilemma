@@ -9,17 +9,40 @@
 #include <stdio.h>
 #include <unistd.h>
 
+
+/* neighbour outgoing connection thread data */
+struct neighbour_data {
+    struct town_descriptor *town;
+    long *migrants;
+    sem_t mig_lock;
+    char *destination;
+    short port;
+    char *allowed;
+    sem_t send;
+};
+
+/* neighbour outgoing connection thread wrapper */
+void *neighbour_thread(void *data) {
+    struct neighbour_data *arg = data;
+    send_migrants(arg->town, arg->migrants, &arg->mig_lock,
+                  arg->destination, arg->port, arg->allowed, &arg->send);
+    return NULL;
+}
+
+
 /* population simulation thread data */
 struct population_data {
     struct town_descriptor *town;
     sem_t *pop_lock;
     sem_t *next;
     sem_t *done;
+    struct neighbour_data *neighbours;
+    int n_neighbours;
 };
 
 /* thread wrapper for population_parallel */
 void *population_process(void *data) {
-    struct population_data *arg = (struct population_data *)data;
+    struct population_data *arg = data;
     population_parallel(arg->town, arg->pop_lock, arg->next, arg->done);
     // process is not supposed to stop
     exit(EXIT_FAILURE);
@@ -34,7 +57,7 @@ struct accept_neighbours_data {
 
 /* thread wrapper for accept_neighbours */
 void *accept_neighbours_process(void *data) {
-    struct accept_neighbours_data *arg = (struct accept_neighbours_data *)data;
+    struct accept_neighbours_data *arg = data;
     accept_neighbours(arg->town, arg->pop_lock, arg->port);
     // process is not supposed to stop
     exit(EXIT_FAILURE);
@@ -74,11 +97,45 @@ void *monitor_com(void *_data) {
 
 
 int main(int argc, char **argv) {
+    // parse arguments
     struct argp_data option_data = parse_arguments(argc, argv);
     struct town_descriptor *town = option_data.town;
     short mon_port = option_data.mon_port;
     short in_port = option_data.in_port;
+    char **neighbour_names = option_data.neighbours;
+    short *neighbour_ports = option_data.neighbour_ports;
+    int n_neighbours = option_data.n_neighbours;
 
+    // launch neighbours outgoing connection threads
+    struct neighbour_data *neighbours;
+    neighbours = malloc(n_neighbours * sizeof(struct neighbour_data));
+    if(!neighbours) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    for(int i=0; i<n_neighbours; i++) {
+        neighbours[i].destination = neighbour_names[i];
+        neighbours[i].port = neighbour_ports[i];
+        neighbours[i].town = town;
+        neighbours[i].migrants = malloc(town->n_strategies * sizeof(long));
+        if(!neighbours[i].migrants) {
+            perror("malloc");
+            exit(EXIT_FAILURE);
+        }
+        neighbours[i].allowed = malloc(town->n_strategies * sizeof(char));
+        if(!neighbours[i].allowed) {
+            perror("malloc");
+            exit(EXIT_FAILURE);
+        }
+        sem_init(&neighbours[i].mig_lock, 0, 1);
+        sem_init(&neighbours[i].send, 0, 0);
+
+        pthread_t thread;
+        pthread_create(&thread, NULL, neighbour_thread, &neighbours[i]);
+        pthread_detach(thread);
+    }
+
+    // launch population thread
     sem_t pop_lock, next, done;
     sem_init(&pop_lock, 0, 1);
     sem_init(&next, 0, 0);
@@ -90,7 +147,6 @@ int main(int argc, char **argv) {
     data.next = &next;
     data.done = &done;
 
-    // launch population thread
     pthread_t pop_t;
     pthread_create(&pop_t, NULL, population_process, (void*)&data);
     pthread_detach(pop_t);
