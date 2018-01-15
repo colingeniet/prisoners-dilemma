@@ -5,16 +5,6 @@
 #include <unistd.h>
 
 
-void fatal_error(char *error) {
-    fprintf(stderr, "%s.\n", error);
-    exit(EXIT_FAILURE);
-}
-
-void fatal_perror(char *msg) {
-    perror(msg);
-    exit(EXIT_FAILURE);
-}
-
 
 void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
                          sem_t *next, sem_t *done,

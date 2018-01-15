@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+/* multidimentionnal array allocation */
+
 /** Allocate a multidimentionnal array.
  * @param dimensions the number of dimensions requested.
  * @param ... `dimensions` arguments of type `size_t`.
@@ -31,5 +33,15 @@ void multi_free(void *mem, size_t dimensions, ...);
  * @param sizes the dimensions of `mem` as an argument list
  *   of length `dimensions - 1`. The last dimension may be ommited. */
 void multi_freev(void *mem, size_t dimensions, va_list sizes);
+
+/* errors */
+/** print an error message and fail.
+ * @param msg the error message.
+ * @return this function never returns */
+void fatal_error(char *msg);
+/** print an error message with perror and fail.
+ * @param msg the perror message.
+ * @return this function never returns */
+void fatal_perror(char *msg);
 
 #endif /* end of include guard: UTILS_H_INCLUDED */

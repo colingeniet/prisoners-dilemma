@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <stdio.h>
 
 
 void* multi_mallocv(size_t dimensions, va_list sizes) {
@@ -70,4 +71,17 @@ void multi_free(void *mem, size_t dimensions, ...) {
     va_list vl;
     va_start(vl, dimensions);
     multi_freev(mem, dimensions, vl);
+}
+
+
+
+
+void fatal_error(char *msg) {
+    fprintf(stderr, "%s.\n", msg);
+    exit(EXIT_FAILURE);
+}
+
+void fatal_perror(char *msg) {
+    perror(msg);
+    exit(EXIT_FAILURE);
 }
