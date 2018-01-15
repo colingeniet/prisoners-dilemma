@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
             initial_pop[i] = init_pop;
         }
 
-        result = multi_mallocv(2, (size_t)steps, (size_t)N_STRATEGIES*sizeof(long));
+        result = multi_malloc(2, (size_t)steps, (size_t)N_STRATEGIES*sizeof(long));
         if(!result) {
             perror("populations_simulation");
             ret = 1;
@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
 
         end_pop:
         free(initial_pop);
-        multi_freev(result, 2, (size_t)steps);
+        multi_free(result, 2, (size_t)steps);
         return ret;
     } else {
         /* simulate proportions */
@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
             initial_prop[i] = (double)1/N_STRATEGIES;
         }
 
-        result = multi_mallocv(2, (size_t)steps, (size_t)N_STRATEGIES*sizeof(double));
+        result = multi_malloc(2, (size_t)steps, (size_t)N_STRATEGIES*sizeof(double));
         if(!result) {
             perror("populations_simulation");
             ret = 1;
@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
 
         end_prop:
         free(initial_prop);
-        multi_freev(result, 2, (size_t)steps);
+        multi_free(result, 2, (size_t)steps);
         return ret;
     }
 }

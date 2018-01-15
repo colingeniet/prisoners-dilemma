@@ -23,11 +23,11 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
 
     // initialize arrays
     action ***actions = NULL;
-    actions = multi_mallocv(2, town->n_strategies, town->n_strategies * sizeof(action*));
+    actions = multi_malloc(2, town->n_strategies, town->n_strategies * sizeof(action*));
     if(!actions) fatal_perror("town");
 
     int **n_coop = NULL;
-    n_coop = multi_mallocv(2, town->n_strategies, town->n_strategies * sizeof(int));
+    n_coop = multi_malloc(2, town->n_strategies, town->n_strategies * sizeof(int));
     if(!n_coop) fatal_perror("town");
 
     long *scores = NULL;

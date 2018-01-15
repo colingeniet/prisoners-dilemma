@@ -23,7 +23,7 @@ int populations(struct strategy_entry *strategies, int n_strategies,
         ret = -1;
         goto end;
     }
-    scores = multi_mallocv(3, (size_t)n_strategies, (size_t)n_strategies,
+    scores = multi_malloc(3, (size_t)n_strategies, (size_t)n_strategies,
                               (size_t)n * sizeof(int));
     if(!scores) {
         perror("proportions_detail");
@@ -79,7 +79,7 @@ int populations(struct strategy_entry *strategies, int n_strategies,
     }
 
     end:
-    multi_freev(scores, 3, (size_t)n_strategies, (size_t)n_strategies);
+    multi_free(scores, 3, (size_t)n_strategies, (size_t)n_strategies);
     free(points);
     return ret;
 }
@@ -102,7 +102,7 @@ int proportions(struct strategy_entry *strategies, int n_strategies,
         ret = -1;
         goto end;
     }
-    scores = multi_mallocv(3, (size_t)n_strategies, (size_t)n_strategies,
+    scores = multi_malloc(3, (size_t)n_strategies, (size_t)n_strategies,
                               (size_t)n * sizeof(int));
     if(!scores) {
         perror("proportions_detail");
@@ -146,7 +146,7 @@ int proportions(struct strategy_entry *strategies, int n_strategies,
     }
 
     end:
-    multi_freev(scores, 3, (size_t)n_strategies, (size_t)n_strategies);
+    multi_free(scores, 3, (size_t)n_strategies, (size_t)n_strategies);
     free(points);
     return ret;
 }

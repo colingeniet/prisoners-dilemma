@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
     char modified = 1;
     sem_t pop_sem;
 
-    populations = multi_mallocv(2, n_hosts, N_STRATEGIES*sizeof(long));
+    populations = multi_malloc(2, n_hosts, N_STRATEGIES*sizeof(long));
     if(!populations) goto fail_perror;
     data = malloc(n_hosts * sizeof(struct mon_thread_data));
     if(!data) goto fail_perror;

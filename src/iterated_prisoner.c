@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
     }
     n = atoi(argv[1]);
 
-    results = (int**)multi_mallocv(2, (size_t)N_STRATEGIES,
+    results = (int**)multi_malloc(2, (size_t)N_STRATEGIES,
                                    (size_t)N_STRATEGIES*sizeof(int));
     if(!results) {
         perror("iterated_prisoner");
@@ -42,6 +42,6 @@ int main(int argc, char **argv) {
         ret = open_pdf(pdf_output);
 
     end:
-    multi_freev(results, 2, (size_t)N_STRATEGIES);
+    multi_free(results, 2, (size_t)N_STRATEGIES);
     return ret;
 }
