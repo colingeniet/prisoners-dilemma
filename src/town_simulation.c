@@ -3,6 +3,7 @@
 #include "network.h"
 #include "args.h"
 #include "neighbours.h"
+#include "utils.h"
 #include <pthread.h>
 #include <semaphore.h>
 #include <stdlib.h>
@@ -106,27 +107,18 @@ int main(int argc, char **argv) {
     // launch neighbours outgoing connection threads
     struct neighbour *neighbours;
     neighbours = malloc(n_neighbours * sizeof(struct neighbour));
-    if(!neighbours) {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
+    if(!neighbours) fatal_perror("malloc");
+
     struct neighbour_data *neighbours_data;
     neighbours_data = malloc(n_neighbours * sizeof(struct neighbour_data));
-    if(!neighbours) {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
+    if(!neighbours) fatal_perror("malloc");
+
     for(int i=0; i<n_neighbours; i++) {
         neighbours[i].migrants = malloc(town->n_strategies * sizeof(long));
-        if(!neighbours[i].migrants) {
-            perror("malloc");
-            exit(EXIT_FAILURE);
-        }
+        if(!neighbours[i].migrants) fatal_perror("malloc");
         neighbours[i].allowed = malloc(town->n_strategies * sizeof(char));
-        if(!neighbours[i].allowed) {
-            perror("malloc");
-            exit(EXIT_FAILURE);
-        }
+        if(!neighbours[i].allowed) fatal_perror("malloc");
+
         sem_init(&neighbours[i].mig_lock, 0, 1);
         sem_init(&neighbours[i].send, 0, 0);
 
@@ -174,8 +166,6 @@ int main(int argc, char **argv) {
         // wait for connection
         while(!mon);
     }
-
-
 
     for(int step=0;;step++) {
         if(mon) {

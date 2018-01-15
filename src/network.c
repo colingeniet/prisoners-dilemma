@@ -13,14 +13,14 @@ int connect_to_server(char *server, short port) {
     // creates socket
     int sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(sock < 0) {
-        fprintf(stderr, "Error : failed to create socket.\n");
+        perror("socket");
         return -1;
     }
 
     // get server address
 	struct hostent *address = gethostbyname(server);
 	if (!address) {
-        fprintf(stderr, "Error : unknown address %s\n", server);
+        herror("gethostbyname");
         close(sock);
         return -1;
     }
@@ -33,7 +33,7 @@ int connect_to_server(char *server, short port) {
 
 	// connect
 	if(connect(sock,(struct sockaddr *)&sock_addr, sizeof(sock_addr)) < 0) {
-        fprintf(stderr, "Error : failed to connect to %s\n", server);
+        perror("connect");
         close(sock);
         return -1;
     }
@@ -44,7 +44,7 @@ int open_listen_socket(short port) {
     // creates socket
     int sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(sock < 0) {
-        fprintf(stderr, "Error : failed to create socket.\n");
+        perror("socket");
         return -1;
     }
 
@@ -56,12 +56,12 @@ int open_listen_socket(short port) {
 
     // bind socket and set in listen mode
     if(bind(sock,(struct sockaddr *)&sock_addr,sizeof(sock_addr)) < 0) {
-        fprintf(stderr, "Error : bind on port %d failed.\n", port);
+        perror("bind");
         close(sock);
 		return -1;
 	}
     if(listen(sock,SOMAXCONN) < 0) {
-        fprintf(stderr, "Error : failed to set socket in listen mode.\n");
+        perror("listen");
         close(sock);
         return -1;
     }
@@ -73,7 +73,7 @@ int wait_for_client(int socket) {
         int client = accept(socket, NULL, NULL);
         if(client < 0) {
             if (errno == EINTR || errno == EWOULDBLOCK) continue;
-            fprintf(stderr, "Error : client connection failed.\n");
+            perror("accept");
             return -1;
         }
         return client;

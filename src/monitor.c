@@ -64,11 +64,20 @@ int main(int argc, char **argv) {
     sem_t pop_sem;
 
     populations = multi_malloc(2, n_hosts, N_STRATEGIES*sizeof(long));
-    if(!populations) goto fail_perror;
+    if(!populations) {
+        perror("malloc");
+        goto fail;
+    }
     data = malloc(n_hosts * sizeof(struct mon_thread_data));
-    if(!data) goto fail_perror;
+    if(!data) {
+        perror("malloc");
+        goto fail;
+    }
     threads = malloc(n_hosts * sizeof(pthread_t));
-    if(!threads) goto fail_perror;
+    if(!threads) {
+        perror("malloc");
+        goto fail;
+    }
 
     sem_init(&pop_sem, 0, n_hosts);
 
@@ -133,8 +142,6 @@ int main(int argc, char **argv) {
         }
     }
 
-    fail_perror:
-    perror("monitor");
     fail:
     fprintf(stderr, "Fatal error in monitor - Warning, monitored processes may \
 not be terminated automatically.\n");

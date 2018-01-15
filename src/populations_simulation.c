@@ -29,46 +29,29 @@ int main(int argc, char **argv) {
         FILE *output;
 
         initial_pop = malloc(N_STRATEGIES * sizeof(long));
-        if(!initial_pop) {
-            perror("populations_simulation");
-            ret = 1;
-            goto end_pop;
-        }
+        if(!initial_pop) fatal_perror("malloc");
         for(int i=0; i<N_STRATEGIES; i++) {
             initial_pop[i] = init_pop;
         }
 
         result = multi_malloc(2, (size_t)steps, (size_t)N_STRATEGIES*sizeof(long));
-        if(!result) {
-            perror("populations_simulation");
-            ret = 1;
-            goto end_pop;
-        }
+        if(!result) fatal_perror("malloc");
 
         populations(strategies, N_STRATEGIES, steps, default_rewards, initial_pop, result);
 
         output = fopen(data_output, "w");
-        if(!output) {
-            perror("populations_simulation");
-            ret = 1;
-            goto end_pop;
-        }
+        if(!output) fatal_perror("fopen");
         print_population_data(output, N_STRATEGIES, steps, result, strategies);
         fclose(output);
 
         output = fopen(latex_output, "w");
-        if(!output) {
-            perror("populations_simulation");
-            ret = 1;
-            goto end_pop;
-        }
+        if(!output) fatal_perror("fopen");
         print_population_latex(output, N_STRATEGIES, data_output, strategies);
         fclose(output);
 
         if(!(ret = compile_latex(latex_output)))
             ret = open_pdf(pdf_output);
 
-        end_pop:
         free(initial_pop);
         multi_free(result, 2, (size_t)steps);
         return ret;
@@ -80,46 +63,29 @@ int main(int argc, char **argv) {
         FILE *output;
 
         initial_prop = malloc(N_STRATEGIES * sizeof(double));
-        if(!initial_prop) {
-            perror("populations_simulation");
-            ret = 1;
-            goto end_prop;
-        }
+        if(!initial_prop) fatal_perror("malloc");
         for(int i=0; i<N_STRATEGIES; i++) {
             initial_prop[i] = (double)1/N_STRATEGIES;
         }
 
         result = multi_malloc(2, (size_t)steps, (size_t)N_STRATEGIES*sizeof(double));
-        if(!result) {
-            perror("populations_simulation");
-            ret = 1;
-            goto end_prop;
-        }
+        if(!result) fatal_perror("malloc");
 
         proportions(strategies, N_STRATEGIES, steps, default_rewards, initial_prop, result);
 
         output = fopen(data_output, "w");
-        if(!output) {
-            perror("populations_simulation");
-            ret = 1;
-            goto end_prop;
-        }
+        if(!output) fatal_perror("fopen");
         print_population_data_d(output, N_STRATEGIES, steps, result, strategies);
         fclose(output);
 
         output = fopen(latex_output, "w");
-        if(!output) {
-            perror("populations_simulation");
-            ret = 1;
-            goto end_prop;
-        }
+        if(!output) fatal_perror("fopen");
         print_population_latex(output, N_STRATEGIES, data_output, strategies);
         fclose(output);
 
         if(!(ret = compile_latex(latex_output)))
             ret = open_pdf(pdf_output);
 
-        end_prop:
         free(initial_prop);
         multi_free(result, 2, (size_t)steps);
         return ret;

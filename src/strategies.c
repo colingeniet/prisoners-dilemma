@@ -76,7 +76,7 @@ int iterate_dilemma(strategy player1, strategy player2, int n,
     hist1 = (action*)malloc(n*sizeof(action));
     hist2 = (action*)malloc(n*sizeof(action));
     if(!hist1 || !hist2) {
-        perror("iterate_dilemma");
+        perror("malloc");
         result=-1;
         goto end;
     }
@@ -133,7 +133,7 @@ int iterate_dilemma_detail(strategy player1, strategy player2, int n,
     hist1 = (action*)malloc(n*sizeof(action));
     hist2 = (action*)malloc(n*sizeof(action));
     if(!hist1 || !hist2) {
-        perror("iterate_dilemma_detail");
+        perror("malloc");
         result=-1;
         goto end;
     }

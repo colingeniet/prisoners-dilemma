@@ -1,5 +1,6 @@
 #include "neighbours.h"
 #include "network.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,7 +13,7 @@ void handle_neighbour(struct town_descriptor *town, sem_t *pop_lock, int sock) {
     FILE *com = fdopen(sock, "r+");
     if(!com) {
         perror("fdopen");
-        exit(EXIT_FAILURE);
+        return;
     }
 
     // send allowed strategies
@@ -95,14 +96,19 @@ int send_migrants(struct town_descriptor *town, struct neighbour *neighbour,
     FILE *com = fdopen(sock, "r+");
     if(!com) {
         perror("fdopen");
-        exit(EXIT_FAILURE);
+        close(sock);
+        return -1;
     }
 
     // receive allowed strategies
     char strat_name[10];
     for(;;) {
         int ret = fscanf(com, " %9s", strat_name);
-        if(ret == EOF) return -1;
+        if(ret == EOF) {
+            close(sock);
+            fclose(com);
+            return -1;
+        }
         else if(ret != 1) continue; // invalid input
 
         if(!strcmp(strat_name, "end")) break;

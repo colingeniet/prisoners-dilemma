@@ -1,4 +1,5 @@
 #include "args.h"
+#include "utils.h"
 #include <argp.h>
 #include <string.h>
 #include <stdio.h>
@@ -192,10 +193,8 @@ void add_neighbour(char *host, struct argp_data *data) {
         int new_size = (data->neighbours_alloc ? 2*data->neighbours_alloc : 1);
         data->neighbours = realloc(data->neighbours, new_size * sizeof(char*));
         data->neighbour_ports = realloc(data->neighbour_ports, new_size * sizeof(short));
-        if(!data->neighbours || !data->neighbour_ports) {
-            perror("args");
-            exit(EXIT_FAILURE);
-        }
+        if(!data->neighbours || !data->neighbour_ports)
+            fatal_perror("realloc");
         data->neighbours_alloc = new_size;
     }
 
@@ -247,7 +246,7 @@ struct argp_data parse_arguments(int argc, char **argv) {
 
     // creates new town descriptor with default values
     struct town_descriptor *town = malloc(sizeof(struct town_descriptor));
-    if(!town) goto fail;
+    if(!town) fatal_perror("malloc");
     town->n_strategies = N_STRATEGIES;
     town->strategies = strategies;
     town->rewards = &default_rewards;
@@ -255,9 +254,9 @@ struct argp_data parse_arguments(int argc, char **argv) {
     town->population = NULL;
 
     town->allowed = malloc(town->n_strategies * sizeof(char));
-    if(!town->allowed) goto fail;
+    if(!town->allowed) fatal_perror("malloc");
     town->population = malloc(town->n_strategies * sizeof(long));
-    if(!town->allowed) goto fail;
+    if(!town->population) fatal_perror("malloc");
 
     for(int i=0; i<town->n_strategies; i++) {
         town->allowed[i] = 1;
@@ -275,13 +274,4 @@ struct argp_data parse_arguments(int argc, char **argv) {
     argp_parse(&argp, argc, argv, 0, 0, &data);
 
     return data;
-
-    fail:
-    perror("parse_arguments");
-    if(town) {
-        free(town->allowed);
-        free(town->population);
-        free(town);
-    }
-    exit(EXIT_FAILURE);
 }

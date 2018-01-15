@@ -19,14 +19,14 @@ int populations(struct strategy_entry *strategies, int n_strategies,
 
     points = malloc(n_strategies * sizeof(long));
     if(!points) {
-        perror("proportions_detail");
+        perror("malloc");
         ret = -1;
         goto end;
     }
     scores = multi_malloc(3, (size_t)n_strategies, (size_t)n_strategies,
                               (size_t)n * sizeof(int));
     if(!scores) {
-        perror("proportions_detail");
+        perror("malloc");
         ret = -1;
         goto end;
     }
@@ -98,14 +98,14 @@ int proportions(struct strategy_entry *strategies, int n_strategies,
 
     points = malloc(n_strategies * sizeof(double));
     if(!points) {
-        perror("proportions_detail");
+        perror("malloc");
         ret = -1;
         goto end;
     }
     scores = multi_malloc(3, (size_t)n_strategies, (size_t)n_strategies,
                               (size_t)n * sizeof(int));
     if(!scores) {
-        perror("proportions_detail");
+        perror("malloc");
         ret = -1;
         goto end;
     }
