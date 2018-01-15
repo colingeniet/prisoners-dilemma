@@ -2,7 +2,7 @@
 #define TOWN_H_INCLUDED
 
 #include "strategies.h"
-#include "semaphore.h"
+#include <semaphore.h>
 
 /** Describes the state of a town. */
 struct town_descriptor {
@@ -12,6 +12,13 @@ struct town_descriptor {
     char *allowed;
     int (*rewards)[2][2];               /**< The reward values. */
     long *population;                   /**< The population for each strategie. */
+};
+
+struct neighbour {
+    char *allowed;
+    long *migrants;
+    sem_t mig_lock;
+    sem_t send;
 };
 
 /** Simulates population evolution in a multithreaded environment.
@@ -25,7 +32,8 @@ struct town_descriptor {
  * `next` and `done` can be used to coordinate the simulation with
  * other threads. */
 void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
-                         sem_t *next, sem_t *done);
+                         sem_t *next, sem_t *done,
+                         struct neighbour *neighbours, int n_neighbours);
 
 
 #endif /* end of include guard: TOWN_H_INCLUDED */

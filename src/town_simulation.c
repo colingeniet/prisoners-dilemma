@@ -13,19 +13,15 @@
 /* neighbour outgoing connection thread data */
 struct neighbour_data {
     struct town_descriptor *town;
-    long *migrants;
-    sem_t mig_lock;
+    struct neighbour *neighbour;
     char *destination;
     short port;
-    char *allowed;
-    sem_t send;
 };
 
 /* neighbour outgoing connection thread wrapper */
 void *neighbour_thread(void *data) {
     struct neighbour_data *arg = data;
-    send_migrants(arg->town, arg->migrants, &arg->mig_lock,
-                  arg->destination, arg->port, arg->allowed, &arg->send);
+    send_migrants(arg->town, arg->neighbour, arg->destination, arg->port);
     return NULL;
 }
 
@@ -36,14 +32,15 @@ struct population_data {
     sem_t *pop_lock;
     sem_t *next;
     sem_t *done;
-    struct neighbour_data *neighbours;
+    struct neighbour *neighbours;
     int n_neighbours;
 };
 
 /* thread wrapper for population_parallel */
 void *population_process(void *data) {
     struct population_data *arg = data;
-    population_parallel(arg->town, arg->pop_lock, arg->next, arg->done);
+    population_parallel(arg->town, arg->pop_lock, arg->next, arg->done,
+                        arg->neighbours, arg->n_neighbours);
     // process is not supposed to stop
     exit(EXIT_FAILURE);
 }
@@ -107,16 +104,19 @@ int main(int argc, char **argv) {
     int n_neighbours = option_data.n_neighbours;
 
     // launch neighbours outgoing connection threads
-    struct neighbour_data *neighbours;
-    neighbours = malloc(n_neighbours * sizeof(struct neighbour_data));
+    struct neighbour *neighbours;
+    neighbours = malloc(n_neighbours * sizeof(struct neighbour));
+    if(!neighbours) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    struct neighbour_data *neighbours_data;
+    neighbours_data = malloc(n_neighbours * sizeof(struct neighbour_data));
     if(!neighbours) {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
     for(int i=0; i<n_neighbours; i++) {
-        neighbours[i].destination = neighbour_names[i];
-        neighbours[i].port = neighbour_ports[i];
-        neighbours[i].town = town;
         neighbours[i].migrants = malloc(town->n_strategies * sizeof(long));
         if(!neighbours[i].migrants) {
             perror("malloc");
@@ -130,8 +130,13 @@ int main(int argc, char **argv) {
         sem_init(&neighbours[i].mig_lock, 0, 1);
         sem_init(&neighbours[i].send, 0, 0);
 
+        neighbours_data[i].town = town;
+        neighbours_data[i].neighbour = &neighbours[i];
+        neighbours_data[i].destination = neighbour_names[i];
+        neighbours_data[i].port = neighbour_ports[i];
+
         pthread_t thread;
-        pthread_create(&thread, NULL, neighbour_thread, &neighbours[i]);
+        pthread_create(&thread, NULL, neighbour_thread, &neighbours_data[i]);
         pthread_detach(thread);
     }
 

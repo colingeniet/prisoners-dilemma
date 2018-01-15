@@ -84,8 +84,8 @@ int accept_neighbours(struct town_descriptor *town, sem_t *pop_lock, short port)
 
 
 
-int send_migrants(struct town_descriptor *town, long *migrants, sem_t *mig_lock,
-                  char *destination, short port, char *allowed, sem_t *send) {
+int send_migrants(struct town_descriptor *town, struct neighbour *neighbour,
+                  char *destination, short port) {
     int sock = -1;
     while(sock < 0) {
         sleep(1);
@@ -109,7 +109,7 @@ int send_migrants(struct town_descriptor *town, long *migrants, sem_t *mig_lock,
 
         for(int strat=0; strat<town->n_strategies; strat++) {
             if(!strcmp(strat_name, town->strategies[strat].very_short_name)) {
-                allowed[strat] = 1;
+                neighbour->allowed[strat] = 1;
                 continue; // ignore any other strategy with the same name
             }
         }
@@ -117,18 +117,18 @@ int send_migrants(struct town_descriptor *town, long *migrants, sem_t *mig_lock,
 
     // send migrants
     for(;;) {
-        sem_wait(send); // wait for send signal
-        sem_wait(mig_lock);
+        sem_wait(&neighbour->send); // wait for send signal
+        sem_wait(&neighbour->mig_lock);
         for(int strat=0; strat<town->n_strategies; strat++) {
-            if(!allowed[strat] || !town->allowed[strat]) continue;
+            if(!neighbour->allowed[strat] || !town->allowed[strat]) continue;
 
-            if(migrants[strat] > 0) {
+            if(neighbour->migrants[strat] > 0) {
                 fprintf(com, "%s %ld ", town->strategies[strat].very_short_name,
-                        migrants[strat]);
-                migrants[strat] = 0;
+                        neighbour->migrants[strat]);
+                neighbour->migrants[strat] = 0;
             }
         }
-        sem_post(mig_lock);
+        sem_post(&neighbour->mig_lock);
         fflush(com);
     }
 }

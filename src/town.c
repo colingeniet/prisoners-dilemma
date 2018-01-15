@@ -17,8 +17,8 @@ void fatal_perror(char *msg) {
 
 
 void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
-                         sem_t *next, sem_t *done)
-{
+                         sem_t *next, sem_t *done,
+                         struct neighbour *neighbours, int n_neighbours) {
     int steps_alloc = 128;
 
     // initialize arrays
