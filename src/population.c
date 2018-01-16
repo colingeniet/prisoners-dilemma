@@ -4,6 +4,51 @@
 #include <stdio.h>
 
 
+int proportion(long *result, long *coefs, int n, long total) {
+    long *rests = malloc(n*sizeof(long));
+    if(!rests) return -1;
+    int *perm = malloc(n*sizeof(int));
+    if(!perm) {
+        free(rests);
+        return -1;
+    }
+
+    // calculate the sum of coefficients
+    long total_coef = 0;
+    for(int i=0; i<n; i++) {
+        total_coef += coefs[i];
+    }
+    if(total_coef == 0) return -1;
+
+    long diff = total;
+    for(int i=0; i<n; i++) {
+        // approximate results : just use floor
+        result[i] = (coefs[i]*total)/total_coef;
+        // diff is the difference between the current sum and the expected total
+        diff -= result[i];
+        // calculate the remainders
+        rests[i] = (coefs[i]*total)%total_coef;
+        // and initialize the permutation indices array
+        perm[i] = i;
+    }
+    // sort the remainders (biggest first)
+    for(int i=1; i<n; i++) {
+        int x = perm[i];
+        int j = i;
+        while(j>0 && rests[perm[j-1]] < rests[x]) {
+            perm[j] = perm[j-1];
+            j--;
+        }
+        perm[j] = x;
+    }
+    // increase the results with biggest remainders to reach total
+    for(;diff-->0;) result[perm[diff]]++;   // yes it works
+
+    free(rests); free(perm);
+    return 0;
+}
+
+
 int populations(struct strategy_entry *strategies, int n_strategies,
                 int n, int rewards[2][2],
                 long *initial_pop, long **result) {
@@ -60,18 +105,16 @@ int populations(struct strategy_entry *strategies, int n_strategies,
         for(int i=0; i<n_strategies; i++) {
             sum += points[i];
         }
-
-        // if the total score is 0, do nothing !
-        // this can happen if the population is empty,
-        // or with some weird reward values
         if(sum) {
-            for(int i=0; i<n_strategies; i++) {
-                /* TO DO : ensure the total population does not change
-                 * the sum of the various populations is not exactly constant,
-                 * but at least this makes sure it does not change too much */
-                result[step][i] = (total_pop * points[i]) / sum;
+            if(proportion(result[step], points, n_strategies, total_pop)) {
+                perror("malloc");
+                ret = -1;
+                goto end;
             }
         } else {
+            // if the total score is 0, do nothing !
+            // this can happen if the population is empty,
+            // or with some weird reward values
             for(int i=0; i<n_strategies; i++) {
                 result[step][i] = result[step-1][i];
             }
