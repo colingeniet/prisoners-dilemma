@@ -44,4 +44,18 @@ void fatal_error(char *msg);
  * @return this function never returns */
 void fatal_perror(char *msg);
 
+
+/* other stuff */
+/** Fill the `result` proportionally to `coefs`, with sum `total`.
+ * Fill `result` approxmately proportionally to `coefs`, while having
+ * the sum of result equal to total. Rounding is done to minimize the
+ * total difference with exact values.
+ * Do nothing if the sum of coefs is 0.
+ * @param result the array filled.
+ * @param coefs the proportionallity coefficients.
+ * @param size the size of result and coefs.
+ * @param total the expected sum of result.
+ * @result 0 on success, -1 on failure. */
+int proportion(long *result, long *coefs, int size, long total);
+
 #endif /* end of include guard: UTILS_H_INCLUDED */

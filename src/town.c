@@ -101,10 +101,9 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
         // this can happen if the population is empty,
         // or with some weird reward values
         if(total_score) {
-            for(int i=0; i<town->n_strategies; i++) {
-                if(town->allowed[i]) {
-                    town->population[i] = (total_pop * scores[i]) / total_score;
-                }
+            if(proportion(town->population, scores, town->n_strategies, total_pop)) {
+                perror("malloc");
+                exit(EXIT_FAILURE);
             }
         }
 
