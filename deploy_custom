@@ -14,7 +14,7 @@ for host in $(seq 1 ${n_hosts}); do
     host_name[host]=$(printf "%.2d.dptinfo.ens-cachan.fr" "${host}")
 done
 # monitoring port
-mon_port=4000
+mon_port=9752
 
 
 mon_args=
