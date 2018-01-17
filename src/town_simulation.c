@@ -11,6 +11,21 @@
 #include <unistd.h>
 
 
+/* thread data for accept_neighbours */
+struct accept_neighbours_data {
+    struct town_descriptor *town;
+    sem_t *pop_lock;
+    short port;
+};
+
+/* thread wrapper for accept_neighbours */
+void *accept_neighbours_process(void *data) {
+    struct accept_neighbours_data *arg = data;
+    accept_neighbours(arg->town, arg->pop_lock, arg->port);
+    // process is not supposed to stop
+    exit(EXIT_FAILURE);
+}
+
 /* neighbour outgoing connection thread data */
 struct neighbour_data {
     struct town_descriptor *town;
@@ -42,21 +57,6 @@ void *population_process(void *data) {
     struct population_data *arg = data;
     population_parallel(arg->town, arg->pop_lock, arg->next, arg->done,
                         arg->neighbours, arg->n_neighbours);
-    // process is not supposed to stop
-    exit(EXIT_FAILURE);
-}
-
-/* thread data for accept_neighbours */
-struct accept_neighbours_data {
-    struct town_descriptor *town;
-    sem_t *pop_lock;
-    short port;
-};
-
-/* thread wrapper for accept_neighbours */
-void *accept_neighbours_process(void *data) {
-    struct accept_neighbours_data *arg = data;
-    accept_neighbours(arg->town, arg->pop_lock, arg->port);
     // process is not supposed to stop
     exit(EXIT_FAILURE);
 }
@@ -104,6 +104,31 @@ int main(int argc, char **argv) {
     short *neighbour_ports = option_data.neighbour_ports;
     int n_neighbours = option_data.n_neighbours;
 
+    // global semaphores
+    sem_t pop_lock, next, done;
+    sem_init(&pop_lock, 0, 1);
+    sem_init(&next, 0, 0);
+    sem_init(&done, 0, 0);
+
+    // launch monitoring connection thread
+    FILE *mon = NULL;
+    struct mon_data mon_dt = {&mon, mon_port};
+    if(mon_port >= 0) {
+        pthread_t mon_t;
+        pthread_create(&mon_t, NULL, monitor_com, (void*)&mon_dt);
+        pthread_detach(mon_t);
+        // wait for connection
+        while(!mon);
+    }
+
+    // launch neighbours incomming connection thread
+    struct accept_neighbours_data accept_dt = {town, &pop_lock, in_port};
+    if(in_port >= 0) {
+        pthread_t neighbours_t;
+        pthread_create(&neighbours_t, NULL, accept_neighbours_process, (void*)&accept_dt);
+        pthread_detach(neighbours_t);
+    }
+
     // launch neighbours outgoing connection threads
     struct neighbour *neighbours;
     neighbours = malloc(n_neighbours * sizeof(struct neighbour));
@@ -133,11 +158,6 @@ int main(int argc, char **argv) {
     }
 
     // launch population thread
-    sem_t pop_lock, next, done;
-    sem_init(&pop_lock, 0, 1);
-    sem_init(&next, 0, 0);
-    sem_init(&done, 0, 0);
-
     struct population_data data;
     data.town = town;
     data.pop_lock = &pop_lock;
@@ -147,25 +167,6 @@ int main(int argc, char **argv) {
     pthread_t pop_t;
     pthread_create(&pop_t, NULL, population_process, (void*)&data);
     pthread_detach(pop_t);
-
-    // launch neighbours incomming connection thread
-    struct accept_neighbours_data accept_dt = {town, &pop_lock, in_port};
-    if(in_port >= 0) {
-        pthread_t neighbours_t;
-        pthread_create(&neighbours_t, NULL, accept_neighbours_process, (void*)&accept_dt);
-        pthread_detach(neighbours_t);
-    }
-
-    // launch monitoring connection thread
-    FILE *mon = NULL;
-    struct mon_data mon_dt = {&mon, mon_port};
-    if(mon_port >= 0) {
-        pthread_t mon_t;
-        pthread_create(&mon_t, NULL, monitor_com, (void*)&mon_dt);
-        pthread_detach(mon_t);
-        // wait for connection
-        while(!mon);
-    }
 
     for(int step=0;;step++) {
         if(mon) {
