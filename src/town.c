@@ -138,7 +138,8 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
                 migrants[i] = 0;
             }
             for(long i=0; i<town->population[strat]; i++) {
-                if(0) continue;
+                // decide to migrate or not
+                if(rand()%2) continue;
 
                 // choose a destination town randomly
                 int dest = rand() % n_accept_neighbours;

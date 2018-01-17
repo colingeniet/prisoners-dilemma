@@ -95,6 +95,9 @@ void *monitor_com(void *_data) {
 
 
 int main(int argc, char **argv) {
+    // initialization
+    srand(time(NULL));
+
     // parse arguments
     struct argp_data option_data = parse_arguments(argc, argv);
     struct town_descriptor *town = option_data.town;
@@ -173,6 +176,9 @@ int main(int argc, char **argv) {
     pthread_detach(pop_t);
 
     for(int step=0;;step++) {
+        sem_post(&next);
+        sem_wait(&done);
+        sem_wait(&pop_lock);
         if(mon) {
             for(int i=0; i<town->n_strategies; i++) {
                 if(town->allowed[i]) {
@@ -190,9 +196,8 @@ int main(int argc, char **argv) {
             }
             printf("\n");
         }
-        sem_post(&next);
+        sem_post(&pop_lock);
         sleep(1);
-        sem_wait(&done);
     }
 
     return 0;
