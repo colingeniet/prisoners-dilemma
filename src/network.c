@@ -55,7 +55,7 @@ int open_listen_socket(short port) {
     sock_addr.sin_port = htons(port);
 
     // bind socket and set in listen mode
-    if(bind(sock,(struct sockaddr *)&sock_addr,sizeof(sock_addr)) < 0) {
+    if(bind(sock, (struct sockaddr *)&sock_addr, sizeof(sock_addr)) < 0) {
         perror("bind");
         close(sock);
 		return -1;

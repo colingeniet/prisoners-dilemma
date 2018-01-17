@@ -3,17 +3,17 @@
 #include <stdlib.h>
 
 double rand_fun(void) {
-    return (double) rand() / RAND_MAX;     
+    return (double) rand() / RAND_MAX;
 }
 
 int randint(int a, int b) {
-    return (int) rand_fun() * (b - a);
+    return (int) rand_fun() * (b - a) + a;
 }
 
 void swap(int *a, int *b) {
     int tmp = *a;
     *a = *b;
-    *b = *tmp;
+    *b = tmp;
 }
 
 void shuffle(int ary[], int size) {

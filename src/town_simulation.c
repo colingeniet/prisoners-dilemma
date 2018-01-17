@@ -130,31 +130,33 @@ int main(int argc, char **argv) {
     }
 
     // launch neighbours outgoing connection threads
-    struct neighbour *neighbours;
-    neighbours = malloc(n_neighbours * sizeof(struct neighbour));
-    if(!neighbours) fatal_perror("malloc");
+    struct neighbour *neighbours = NULL;
+    struct neighbour_data *neighbours_data = NULL;
+    if(n_neighbours > 0) {
+        neighbours = malloc(n_neighbours * sizeof(struct neighbour));
+        if(!neighbours) fatal_perror("malloc");
 
-    struct neighbour_data *neighbours_data;
-    neighbours_data = malloc(n_neighbours * sizeof(struct neighbour_data));
-    if(!neighbours) fatal_perror("malloc");
+        neighbours_data = malloc(n_neighbours * sizeof(struct neighbour_data));
+        if(!neighbours) fatal_perror("malloc");
 
-    for(int i=0; i<n_neighbours; i++) {
-        neighbours[i].migrants = malloc(town->n_strategies * sizeof(long));
-        if(!neighbours[i].migrants) fatal_perror("malloc");
-        neighbours[i].allowed = malloc(town->n_strategies * sizeof(char));
-        if(!neighbours[i].allowed) fatal_perror("malloc");
+        for(int i=0; i<n_neighbours; i++) {
+            neighbours[i].migrants = malloc(town->n_strategies * sizeof(long));
+            if(!neighbours[i].migrants) fatal_perror("malloc");
+            neighbours[i].allowed = malloc(town->n_strategies * sizeof(char));
+            if(!neighbours[i].allowed) fatal_perror("malloc");
 
-        sem_init(&neighbours[i].mig_lock, 0, 1);
-        sem_init(&neighbours[i].send, 0, 0);
+            sem_init(&neighbours[i].mig_lock, 0, 1);
+            sem_init(&neighbours[i].send, 0, 0);
 
-        neighbours_data[i].town = town;
-        neighbours_data[i].neighbour = &neighbours[i];
-        neighbours_data[i].destination = neighbour_names[i];
-        neighbours_data[i].port = neighbour_ports[i];
+            neighbours_data[i].town = town;
+            neighbours_data[i].neighbour = &neighbours[i];
+            neighbours_data[i].destination = neighbour_names[i];
+            neighbours_data[i].port = neighbour_ports[i];
 
-        pthread_t thread;
-        pthread_create(&thread, NULL, neighbour_thread, &neighbours_data[i]);
-        pthread_detach(thread);
+            pthread_t thread;
+            pthread_create(&thread, NULL, neighbour_thread, &neighbours_data[i]);
+            pthread_detach(thread);
+        }
     }
 
     // launch population thread
@@ -163,6 +165,8 @@ int main(int argc, char **argv) {
     data.pop_lock = &pop_lock;
     data.next = &next;
     data.done = &done;
+    data.neighbours = neighbours;
+    data.n_neighbours = n_neighbours;
 
     pthread_t pop_t;
     pthread_create(&pop_t, NULL, population_process, (void*)&data);

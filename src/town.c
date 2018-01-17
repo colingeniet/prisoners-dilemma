@@ -14,15 +14,27 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
     // initialize arrays
     action ***actions = NULL;
     actions = multi_malloc(2, town->n_strategies, town->n_strategies * sizeof(action*));
-    if(!actions) fatal_perror("town");
+    if(!actions) fatal_perror("malloc");
 
     int **n_coop = NULL;
     n_coop = multi_malloc(2, town->n_strategies, town->n_strategies * sizeof(int));
-    if(!n_coop) fatal_perror("town");
+    if(!n_coop) fatal_perror("malloc");
 
     long *scores = NULL;
     scores = malloc(town->n_strategies * sizeof(long));
-    if(!scores) fatal_perror("town");
+    if(!scores) fatal_perror("malloc");
+
+    long *migrants = NULL;
+    if(n_neighbours > 0) {
+        migrants = malloc(n_neighbours * sizeof(long));
+        if(!migrants) fatal_perror("malloc");
+    }
+
+    int *accept_neighbours = NULL;
+    if(n_neighbours > 0) {
+        accept_neighbours = malloc(n_neighbours * sizeof(int));
+        if(!accept_neighbours) fatal_perror("malloc");
+    }
 
     // only allocate memory for allowed startegies !
     for(int i=0; i<town->n_strategies; i++) {
@@ -74,6 +86,7 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
         // calculate scores
         // population values need to be stable
         if(pop_lock) sem_wait(pop_lock);
+
         for(int i=0; i<town->n_strategies; i++) {
             if(!town->allowed[i]) continue;
             scores[i] = 0;
@@ -104,6 +117,42 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
             if(proportion(town->population, scores, town->n_strategies, total_pop)) {
                 perror("malloc");
                 exit(EXIT_FAILURE);
+            }
+        }
+
+        // do migrations
+        for(int strat=0; strat<town->n_strategies; strat++) {
+            int n_accept_neighbours = 0;
+            // create the array of accepting neighbours
+            for(int i=0; i<n_neighbours; i++) {
+                if(neighbours[i].allowed[strat]) {
+                    accept_neighbours[n_accept_neighbours++] = i;
+                }
+            }
+            // no accepting town
+            if(!n_accept_neighbours) continue;
+
+            // migrants is the number of migrants to each neighbour, for
+            // this strategy
+            for(int i=0; i<n_neighbours; i++) {
+                migrants[i] = 0;
+            }
+            for(long i=0; i<town->population[strat]; i++) {
+                if(0) continue;
+
+                // choose a destination town randomly
+                int dest = rand() % n_accept_neighbours;
+                migrants[accept_neighbours[dest]]++;
+            }
+
+            // copy results to migration thread
+            for(int i=0; i<n_neighbours; i++) {
+                if(migrants[i] > 0) {
+                    town->population[strat] -= migrants[i];
+                    sem_wait(&neighbours[i].mig_lock);
+                    neighbours[i].migrants[strat] += migrants[i];
+                    sem_post(&neighbours[i].mig_lock);
+                }
             }
         }
 

@@ -29,19 +29,19 @@ void handle_neighbour(struct town_descriptor *town, sem_t *pop_lock, int sock) {
     for(;;) {
         long pop;
         char strat_name[10];
-        int ret = fscanf(com, " %s %ld", strat_name, &pop);
+        int ret = fscanf(com, " %9s %ld", strat_name, &pop);
         if(ret == EOF) return;      // connection closed, or error
         else if(ret != 2) continue; // invalid input
 
+        sem_wait(pop_lock);
         for(int strat=0; strat<town->n_strategies; strat++) {
             if(!town->allowed[strat]) continue;
             if(!strcmp(strat_name, town->strategies[strat].very_short_name)) {
-                sem_wait(pop_lock);
                 town->population[strat] += pop;
-                sem_post(pop_lock);
                 break; // ignore any other strategy with the same name
             }
         }
+        sem_post(pop_lock);
     }
 }
 
@@ -123,18 +123,25 @@ int send_migrants(struct town_descriptor *town, struct neighbour *neighbour,
 
     // send migrants
     for(;;) {
-        sem_wait(&neighbour->send); // wait for send signal
+        //sem_wait(&neighbour->send); // wait for send signal
         sem_wait(&neighbour->mig_lock);
         for(int strat=0; strat<town->n_strategies; strat++) {
             if(!neighbour->allowed[strat] || !town->allowed[strat]) continue;
 
             if(neighbour->migrants[strat] > 0) {
-                fprintf(com, "%s %ld ", town->strategies[strat].very_short_name,
+                /*fprintf(com, "%s %ld ", town->strategies[strat].very_short_name,
                         neighbour->migrants[strat]);
+                neighbour->migrants[strat] = 0;
+                fflush(com);*/
+                /* The printf version just does not works : nothing is received
+                 * on the other end, and I have no idea why. */
+                char buffer[10];
+                sprintf(buffer, "%s %ld ", town->strategies[strat].very_short_name,
+                        neighbour->migrants[strat]);
+                write(sock, buffer, strlen(buffer));
                 neighbour->migrants[strat] = 0;
             }
         }
         sem_post(&neighbour->mig_lock);
-        fflush(com);
     }
 }
