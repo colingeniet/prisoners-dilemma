@@ -135,7 +135,7 @@ int send_migrants(struct town_descriptor *town, struct neighbour *neighbour,
                 fflush(com);*/
                 /* The printf version just does not works : nothing is received
                  * on the other end, and I have no idea why. */
-                char buffer[10];
+                char buffer[20];
                 sprintf(buffer, "%s %ld ", town->strategies[strat].very_short_name,
                         neighbour->migrants[strat]);
                 char *data = buffer;
