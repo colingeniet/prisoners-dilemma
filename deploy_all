@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Settings
-# executable path on distant host
-town_exec=~/prisoners-dilemma/town
+# installation path
+path=~/prisoners-dilemma/
 # options
 town_options='-P 100 -p 0.1'
 # ports
@@ -11,6 +11,8 @@ con_port=9653
 
 n_host=23
 
+town_exec=${path}town
+mon_exec=${path}monitor
 
 mon_args=
 for host in $(seq 1 ${n_host}); do
@@ -33,4 +35,4 @@ for host in $(seq 1 ${n_host}); do
     ) &
 done
 # launch monitoring
-./monitor ${mon_args}
+${mon_exec} ${mon_args}

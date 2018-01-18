@@ -1,11 +1,14 @@
 #!/bin/bash
 
 # Settings
-# executable path on distant host
-town_exec=~/prisoners-dilemma/town
+# installation path
+path=~/prisoners-dilemma/
 # options
 n_hosts=5
 con_port=9754
+
+town_exec=${path}town
+mon_exec=${path}monitor
 
 for host in $(seq 1 ${n_hosts}); do
     host_name[host]=$(printf "%.2d.dptinfo.ens-cachan.fr" "${host}")
@@ -25,4 +28,4 @@ for host in $(seq 1 ${n_hosts}); do
     mon_args="${mon_args} ${host_name[host]}:${mon_port}"
     ssh "${host_name[host]}" "${town_exec} ${town_options[host]} -m ${mon_port}" &
 done
-./monitor ${mon_args}
+${mon_exec} ${mon_args}
