@@ -32,7 +32,7 @@ struct neighbour {
  * `next` and `done` can be used to coordinate the simulation with
  * other threads. */
 void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
-                         sem_t *next, sem_t *done,
+                         sem_t *next, sem_t *done, double prob_mig,
                          struct neighbour *neighbours, int n_neighbours);
 
 

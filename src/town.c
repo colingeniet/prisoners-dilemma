@@ -7,7 +7,7 @@
 
 
 void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
-                         sem_t *next, sem_t *done,
+                         sem_t *next, sem_t *done, double prob_mig,
                          struct neighbour *neighbours, int n_neighbours) {
     int steps_alloc = 128;
 
@@ -50,7 +50,7 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
 
     // main loop
     for(int step=0;;step++) {
-        if(next) sem_wait(next);
+        sem_wait(next);
 
         // reallocate memory if needed
         if(step > steps_alloc) {
@@ -139,7 +139,7 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
             }
             for(long i=0; i<town->population[strat]; i++) {
                 // decide to migrate or not
-                if(rand()%2) continue;
+                if((double) rand() / RAND_MAX >= prob_mig) continue;
 
                 // choose a destination town randomly
                 int dest = rand() % n_accept_neighbours;
@@ -157,7 +157,11 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
             }
         }
 
-        if(pop_lock) sem_post(pop_lock);
-        if(done) sem_post(done);
+        sem_post(pop_lock);
+        // send end signals
+        sem_post(done);
+        for(int i=0; i<n_neighbours; i++) {
+            sem_post(&neighbours[i].send);
+        }
     }
 }

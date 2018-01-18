@@ -50,13 +50,14 @@ struct population_data {
     sem_t *done;
     struct neighbour *neighbours;
     int n_neighbours;
+    double prob_mig;
 };
 
 /* thread wrapper for population_parallel */
 void *population_process(void *data) {
     struct population_data *arg = data;
     population_parallel(arg->town, arg->pop_lock, arg->next, arg->done,
-                        arg->neighbours, arg->n_neighbours);
+                        arg->prob_mig, arg->neighbours, arg->n_neighbours);
     // process is not supposed to stop
     exit(EXIT_FAILURE);
 }
@@ -106,6 +107,7 @@ int main(int argc, char **argv) {
     char **neighbour_names = option_data.neighbours;
     short *neighbour_ports = option_data.neighbour_ports;
     int n_neighbours = option_data.n_neighbours;
+    double prob_mig = option_data.prob_mig;
 
     // global semaphores
     sem_t pop_lock, next, done;
@@ -170,6 +172,7 @@ int main(int argc, char **argv) {
     data.done = &done;
     data.neighbours = neighbours;
     data.n_neighbours = n_neighbours;
+    data.prob_mig = prob_mig;
 
     pthread_t pop_t;
     pthread_create(&pop_t, NULL, population_process, (void*)&data);

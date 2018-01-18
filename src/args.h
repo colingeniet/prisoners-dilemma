@@ -16,6 +16,7 @@ struct argp_data {
     short *neighbour_ports;
     int n_neighbours;
     int neighbours_alloc;
+    double prob_mig;
 };
 
 /** Set program parameters according to command line options. */

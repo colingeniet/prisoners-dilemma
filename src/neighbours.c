@@ -123,7 +123,7 @@ int send_migrants(struct town_descriptor *town, struct neighbour *neighbour,
 
     // send migrants
     for(;;) {
-        //sem_wait(&neighbour->send); // wait for send signal
+        sem_wait(&neighbour->send); // wait for send signal
         sem_wait(&neighbour->mig_lock);
         for(int strat=0; strat<town->n_strategies; strat++) {
             if(!neighbour->allowed[strat] || !town->allowed[strat]) continue;

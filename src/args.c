@@ -8,13 +8,25 @@
 
 #define OPT_NAMES 256
 
+enum options_menus {
+    MENU_STRATS = 1,
+    MENU_NAMES,
+    MENU_POP,
+    MENU_REWARDS,
+    MENU_PROB,
+    MENU_IO,
+    MENU_MON,
+    MENU_MAX
+};
+
 struct argp_option options[] = {
     {0,0,0,0,
 "Strategies used in the simulation can be selected form the list of \
 standard strategies using --allow and --disallow. By default, all \
 strategies are allowed. If several options conflict for a strategy, \
 only the last is taken into account. Very short strategy names shall \
-be used with --allow and --disallow. See --names for the list of names."},
+be used with --allow and --disallow. See --names for the list of names.",
+     MENU_STRATS},
     {"allow", 'a', "STRATS", 0,
 "Allow strategies in STRATS. STRATS shall be a comma separated list \
 of strategies given by their very short names.\n\
@@ -24,31 +36,38 @@ If STRATS is the string \"all\", all strategies are allowed."},
 of strategies given by their very short names.\n\
 If STRATS is the string \"all\", all strategies are disallowed."},
 
-    {"names", OPT_NAMES, 0, 0, "Print names for all standard strategies.", 2},
+    {"names", OPT_NAMES, 0, 0, "Print names for all standard strategies.",
+     MENU_NAMES},
 
-    {"pop", 'p', "[STRATS:]POP", 0,
+    {"pop", 'P', "[STRATS:]POP", 0,
 "Set initial population for strategies in STRATS. STRATS shall be a comma \
 separated list of strategies given by their very short name. When used \
 without STRATS, it is applied to all strategies.\n\
-If several option conflict for a strategy, only the last is taken into account", 3},
+If several option conflict for a strategy, only the last is taken into account",
+     MENU_POP},
 
     {"rewards", 'r', "P,T,D,C", 0,
 "Set the reward values. Rewards are as follow :\n\
        | defect |  coop  |\n\
 defect | P    P | T    D |\n\
  coop  | D    T | C    C |\n\
-Default values are P=1, T=5, D=0, C=3.", 4},
+Default values are P=1, T=5, D=0, C=3.",
+     MENU_REWARDS},
+
+    {"prob", 'p', "PROB", 0,
+"Set migration probability to PROB. (0 by default).",
+     MENU_PROB},
 
     {"out", 'o', "HOST:PORT", 0,
 "Add a neighbour town. The town will connect to that neighbour, \
-and randomly send migrants.", 5},
+and randomly send migrants.", MENU_IO},
     {"in", 'i', "PORT", 0,
 "Allow connections from neighbours on PORT."},
 
     {"mon", 'm', "PORT", 0,
 "Accept a monitoring connection on PORT. If a connection is established, \
 simulation data will be sent to it, and is not printed. \n\
-Closing the connection cause the program to terminate.", 6},
+Closing the connection cause the program to terminate.",  MENU_MON},
     {0}
 };
 
@@ -149,9 +168,19 @@ int set_rewards(char *arg, struct town_descriptor *town) {
     return 0;
 }
 
-short get_port(char *arg) {
+short get_short(char *arg) {
     char *end;
     long val = strtol(arg, &end, 0);
+    if(*end) {
+        fprintf(stderr, "Unexpected value : %s\n", arg);
+        exit(EXIT_FAILURE);
+    }
+    return val;
+}
+
+double get_double(char *arg) {
+    char *end;
+    double val = strtod(arg, &end);
     if(*end) {
         fprintf(stderr, "Unexpected value : %s\n", arg);
         exit(EXIT_FAILURE);
@@ -214,21 +243,24 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
     case 'd':
         allow_strats(arg, town, 0);
         break;
-    case 'p':
+    case 'P':
         set_population(arg, town);
         break;
     case 'r':
         set_rewards(arg, town);
+        break;
+    case 'p':
+        data->prob_mig = get_double(arg);
         break;
     case OPT_NAMES:
         print_names(town);
         exit(EXIT_SUCCESS);
         break;
     case 'm':
-        data->mon_port = get_port(arg);
+        data->mon_port = get_short(arg);
         break;
     case 'i':
-        data->in_port = get_port(arg);
+        data->in_port = get_short(arg);
         break;
     case 'o':
         add_neighbour(arg, data);
@@ -270,6 +302,7 @@ struct argp_data parse_arguments(int argc, char **argv) {
     data.neighbour_ports = NULL;
     data.n_neighbours = 0;
     data.neighbours_alloc = 0;
+    data.prob_mig = 0;
 
     argp_parse(&argp, argc, argv, 0, 0, &data);
 
