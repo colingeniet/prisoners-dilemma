@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
     struct mon_data mon_dt = {&mon, mon_port};
     if(mon_port >= 0) {
         pthread_t mon_t;
-        pthread_create(&mon_t, NULL, monitor_com, (void*)&mon_dt);
+        pthread_create(&mon_t, NULL, monitor_com, &mon_dt);
         pthread_detach(mon_t);
         // wait for connection
         while(!mon);
@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
     struct accept_neighbours_data accept_dt = {town, &pop_lock, in_port};
     if(in_port >= 0) {
         pthread_t neighbours_t;
-        pthread_create(&neighbours_t, NULL, accept_neighbours_process, (void*)&accept_dt);
+        pthread_create(&neighbours_t, NULL, accept_neighbours_process, &accept_dt);
         pthread_detach(neighbours_t);
     }
 
@@ -149,6 +149,11 @@ int main(int argc, char **argv) {
             if(!neighbours[i].migrants) fatal_perror("malloc");
             neighbours[i].allowed = malloc(town->n_strategies * sizeof(char));
             if(!neighbours[i].allowed) fatal_perror("malloc");
+
+            for(int j=0; j<town->n_strategies; j++) {
+                neighbours[i].migrants[j] = 0;
+                neighbours[i].allowed[j] = 0;
+            }
 
             sem_init(&neighbours[i].mig_lock, 0, 1);
             sem_init(&neighbours[i].send, 0, 0);
@@ -175,7 +180,7 @@ int main(int argc, char **argv) {
     data.prob_mig = prob_mig;
 
     pthread_t pop_t;
-    pthread_create(&pop_t, NULL, population_process, (void*)&data);
+    pthread_create(&pop_t, NULL, population_process, &data);
     pthread_detach(pop_t);
 
     for(int step=0;;step++) {
