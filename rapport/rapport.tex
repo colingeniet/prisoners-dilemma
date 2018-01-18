@@ -1,4 +1,4 @@
-\documentclass[10pt]{article}
+\documentclass[draft,10pt]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -27,8 +27,7 @@ Ce programme simule toutes les combinaisons des 11 stratégies standard pour \ve
 et crée \verb|iterated_dilemma.tex| contenant un tableau des scores cumulés.
 Voir la table \ref{strat_table} pour un exemple de résultat.
 
-Le programme tente de compiler le fichier \LaTeX{} avec \verb|pdflatex|, et de l'afficher avec \verb|evince|
-(modifiable dans \verb|latex_output.h|).
+Le programme tente de compiler le fichier \LaTeX{} avec \verb|pdflatex|, et de l'afficher avec \verb|evince|.
 
 \begin{table}
 \caption[Comparaison des stratégies]{Comparaisons des stratégies sur le dilemme du prisonnier itéré.}
@@ -79,7 +78,7 @@ lignes : joueur 1 --- colonnes : joueur 2
 Cette première partie pose assez peu de problèmes de conception, 
 le principal étant celui de la représentation des stratégies.
 Nous avons décidé de les représenter par une fonction de décision, qui choisit une action
-(coopérer ou trahir) selon ce qui s'est passé lors des parties précédentes.
+(coopérer ou trahir) selon ce qui c'est passé lors des parties précédentes.
 
 Pour pouvoir manipuler les stratégies comme paramètre dans des fonctions d'ordre supérieur, 
 nous avons choisit la signature commune suivante pour toutes les stratégies :
@@ -114,8 +113,7 @@ avec des populations initiales toutes de taille \verb|initial_population|,
 et crée \verb|populations.tex| contenant le graphe de l'évolution de la taille des populations.
 Voir la figure \ref{sim_plot} pour un exemple de résultat.
 
-Le programme tente de compiler le fichier \LaTeX{} avec \verb|pdflatex|, et de l'afficher avec \verb|evince|
-(modifiable dans \verb|latex_output.h|).
+Le programme tente de compiler le fichier \LaTeX{} avec \verb|pdflatex|, et de l'afficher avec \verb|evince|.
 
 Le paramètre \verb|initial_population| est optionnel. S'il n'est pas fournit, le programme travaille
 alors avec des proportions de population réelles, au lieu de tailles de populations discrètes.
@@ -164,6 +162,36 @@ Le résultat correspond alors au comportement limite, pour des populations grand
 \end{center}
 \end{figure}
 
+\subsection{Conception}
+Les formules d'évolution de la population étant données, cette partie ne laisse pas beaucoup de choix pour l'implémentation.
+On mentionnera rapidement la méthode d'arrondi, ainsi que notre proposition de simuler le comportement limite avec
+des proportions réelles de populations.
+
+\paragraph{Arrondis}
+Les tailles de populations données par les formules d'évolution de la population ne sont pas a priori entières.
+Il est donc nécessaire d'effectuer des arrondis.
+Nous avons décidé de nous assurer en priorité que la population totale reste constante durant ceux-ci.
+
+Pour cela, nous arrondissons supérieurement exactement le nombre de valeurs nécessaire pour atteindre
+la population cible, les autres étant arrondies inférieurement. 
+On choisit les valeurs avec les parties fractionnaires les plus grandes en premier pour l'arrondit supérieur,
+afin de minimiser la différence entre les valeurs théoriques, et celles arrondies.
+
+\paragraph{Simulation à valeurs réelles}
+On remarque facilement que les résultats de la simulation varient peu --- au sens des proportions --- avec la population, dès que celle-ci
+est assez grande ($\ge 10$).
+Il est naturel dans ces conditions d'envisager d'effectuer la simulation en remplaçant les tailles des populations
+par des proportions dans une population supposée grande. Cela correspond à une simulation du comportement limite (population grande).
+
+En effet, les seules différences avec la simulation discrète sont :
+\begin{itemize}
+\item l'absence d'arrondis
+\item le fait qu'un individu ne se confronte pas lui-même est négligé
+\end{itemize}
+Ces deux effets deviennent négligeables pour une population importante.
+
+Nous avons donc implémenté cette variante, qui est utilisée si la population initiale n'est pas donnée.
+
 \newpage
 \section{Simulation distribuée}
 \subsection{Usage}
@@ -176,6 +204,34 @@ $ make
 \verb|./town| simule une ville, et \verb|./monitor| contrôle l'évolution de la population de plusieurs villes en temps réel.
 Les scripts \verb|deploy_all|, \verb|deploy_custom| sont des exemples de déploiement sur les machines de la salle 411.
 
+\subsubsection{Scripts de déploiement}
+\verb|deploy_local| lance la simulation de 10 villes localement, avec les mêmes options pour toutes.
+
+\verb|deploy_all| et \verb|deploy_custom| sont des exemples de déploiement sur les machines de la salle 411.
+\verb|deploy_all| lance des simulations de villes sur toutes les machines, avec les mêmes options pour toutes.
+\verb|deploy_custom| lance la simulation de quelques villes, avec des options plus variées.
+
+\verb|deploy_all| et \verb|deploy_custom| sont prévus pour être lancés depuis une machine de la salle 411.
+\verb|ssh| est utilisé pour lancer les simulations distantes, et doit donc être correctement configuré :
+\begin{verbatim}
+$ ssh XX.dptinfo.ens-cachan.fr
+\end{verbatim}
+exécuté sur la machine où les scripts sont lancés doit se connecter à la machine \verb|XX|.
+
+Pour lancer la simulation avec \verb|XX.dptinfo.ens-cachan.fr| comme machine mère, il faut faire
+sur cette dernière (en supposant \verb|ssh| correctement configuré) :
+\begin{itemize}
+\item Extraire l'archive du programme dans \verb|PATH|
+\item Dans \verb|PATH|, faire : \verb|$ make|
+\item Dans les scripts \verb|PATH/deploy_all| et \verb|PATH/deploy_custom|, mettre la variable \verb|path| à \verb|PATH/|
+\item Lancer \verb|PATH/deploy_all|, ou \verb|PATH/deploy_custom|
+\end{itemize}
+
+Les simulations de villes seront lancées sur les différentes machines, et un moniteur, lancé sur \verb|XX| s'y connectera.
+
+Enfin, des variables permettent de modifier les options de simulation dans tous les scripts.
+
+
 \subsubsection{Simulation d'une ville}
 L'exécutable \verb|town| simule une ville, avec la possibilité de modifier les stratégies autorisées,
 les valeurs des récompenses, et les populations initiales. Par défaut, l'évolution des populations
@@ -183,12 +239,12 @@ est affichées sur la sortie standard.
 
 Par exemple :
 \begin{verbatim}
-$ ./town -p 100 -p dd:200 -d m,pg -r 2,8,0,4
+$ ./town -P 100 -P dd:200 -d m,pg -r 2,8,0,4
 \end{verbatim}
 lance la simulation avec les options :
 \begin{description}
-\item[\tt{-p 100}] : population initiale de 100 pour toutes les stratégies.
-\item[\tt{-p dd:200}] : population initiale de 200 pour la stratégie `donnant-donnant'.
+\item[\tt{-P 100}] : population initiale de 100 pour toutes les stratégies.
+\item[\tt{-P dd:200}] : population initiale de 200 pour la stratégie `donnant-donnant'.
 \item[\tt{-d m,pg}] : les stratégies `méchante' et `périodique gentille' sont interdites.
 \item[\tt{-r 2,8,0,4}] : récompenses $P=2$, $T=8$, $D=0$, $C=4$.
 \end{description}
@@ -222,6 +278,34 @@ lance localement la simulation d'une ville et d'un moniteur pour contrôler sa p
 
 Lorsque \verb|monitor| se termine, toutes les villes connectées au moniteur sont automatiquement terminées.
 
-\subsubsection{Scripts de déploiement}
+\subsubsection{Migrations}
+Pour permettre des migrations, les villes peuvent se connecter entre elles.
+Les options correspondantes sont \verb|-i|, \verb|-o| :
+\begin{itemize}
+\item \verb|-i PORT| ouvre le port \verb|PORT| pour accepter des connections entrantes. 
+      Cela permet à d'autre villes de se connecter dessus pour envoyer des migrants.
+      Plusieurs villes pourront se connecter sur \verb|PORT|.
+\item \verb|-o HOST:PORT| permet de se connecter à une ville simulée sur \verb|HOST|, qui
+      a ouvert le port \verb|PORT| pour lui envoyer des migrants.
+\end{itemize}
+
+En pratique, pour qu'une ville $A$ envoie des migrants à une ville $B$ :
+
+Commande pour $B$ exécutée sur \verb|HOST| :
+\begin{verbatim}
+$ ./town [OPTIONS] -i PORT
+\end{verbatim}
+
+Commande pour $A$ :
+\begin{verbatim}
+$ ./town [OPTIONS] -o HOST:PORT
+\end{verbatim}
+
+Enfin, \verb|-p PROB| modifie la probabilité de migration pour chaque habitant d'une ville,
+à chaque étape de la simulation (0 par défaut).
+
+
+\subsection{Conception}
+
 
 \end{document}
