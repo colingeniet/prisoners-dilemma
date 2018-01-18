@@ -9,7 +9,7 @@ town_options='-P 100 -p 0.1'
 mon_port=9652
 con_port=9653
 
-n_host=2
+n_host=10
 
 
 mon_args=

@@ -9,7 +9,7 @@ town_options[1]='-P 100'
 town_options[2]='-P 30 -d m,ddd,pm,mm'
 town_options[3]='-d all -a g,m,dd -P g:10 -P m,dd:30'
 town_options[4]='-P 10 -P m,pm,s,mf:100'
-town_options[5]='-P 100'
+town_options[5]='-P 100 -r 3,8,0,3'
 for host in $(seq 1 ${n_hosts}); do
     host_name[host]=$(printf "%.2d.dptinfo.ens-cachan.fr" "${host}")
 done
