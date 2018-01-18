@@ -1,4 +1,4 @@
-\documentclass[draft,10pt]{article}
+\documentclass[10pt]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -306,6 +306,33 @@ Enfin, \verb|-p PROB| modifie la probabilité de migration pour chaque habitant 
 
 
 \subsection{Conception}
+\subsubsection{Règles de simulation}
+\paragraph{Règles générales}
+L'idée générale de cette dernière partie est d'implémenter les mêmes règles d'évolution qu'à la partie 2 sur chacune des villes,
+en ajoutant la possibilité de modifier plus de paramètres, et de permettre les migrations.
 
+La répartition des stratégies dans chaque ville évolue donc en fonction du nombre de points obtenus par cette stratégie dans la ville.
+La population totale, en revanche, reste constante (sans tenir compte des migrations).
 
+Par ailleurs, on notera que la simulation des différentes villes n'est pas synchronisée. 
+Simplement, toutes les villes évoluent approximativement à la même vitesse de une étape par seconde.
+
+\paragraph{Paramètres}
+Par rapport à la partie 2, des paramètres additionnels peuvent être modifiés, et ce pour chaque ville séparément :
+\begin{itemize}
+\item les stratégies possibles (parmi les 11 proposées)
+\item la population initiale, pour chacune des stratégies séparément
+\item les valeurs des récompenses $P,T,D,C$
+\end{itemize}
+
+\paragraph{Migrations}
+Les règles de migration sont les suivantes :
+À chaque étape de la simulation d'une ville, tout individu a une probabilité (donnée comme paramètre) de décider de migrer.
+Dans le cas où un individu décide de migrer, il choisit comme destination une ville acceptant la stratégie de cet individu, parmi celles disponibles,
+avec une probabilité uniforme. Si aucune telle ville n'existe, la migration est annulée : la stratégie de l'individu ne change pas
+durant la migration.
+
+Les villes vers lesquelles une migration est possible --- dites voisines --- sont celles sur lesquelles la ville s'est connectée
+(voir options \verb|-i| et \verb|-o|). Les migrations possibles peuvent donc former n'importe quel graphe orienté, en connectant
+les villes appropriées.
 \end{document}
