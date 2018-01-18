@@ -6,11 +6,11 @@ town_exec=~/prisoners-dilemma/town
 # options
 n_hosts=5
 con_port=9754
-town_options[1]='-P 100 -p 0.2 -i ${con_port}'
-town_options[2]='-P 30 -d m,ddd,pm,mm -p 0.3 -i ${con_port}'
-town_options[3]='-d all -a g,m,dd -P g:10 -P m,dd:30 -p 0.05 -i ${con_port}'
-town_options[4]='-P 10 -P m,pm,s,mf:100 -p 0.4 -i ${con_port}'
-town_options[5]='-P 100 -r 3,8,0,3 -p 0.1 -i ${con_port}'
+town_options[1]="-P 100 -p 0.2 -i ${con_port}"
+town_options[2]="-P 30 -d m,ddd,pm,mm -p 0.3 -i ${con_port}"
+town_options[3]="-d all -a g,m,dd -P g:10 -P m,dd:30 -p 0.05 -i ${con_port}"
+town_options[4]="-P 10 -P m,pm,s,mf:100 -p 0.4 -i ${con_port}"
+town_options[5]="-P 100 -r 3,8,0,3 -p 0.1 -i ${con_port}"
 for host in $(seq 1 ${n_hosts}); do
     host_name[host]=$(printf "%.2d.dptinfo.ens-cachan.fr" "${host}")
 done
