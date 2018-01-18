@@ -138,7 +138,13 @@ int send_migrants(struct town_descriptor *town, struct neighbour *neighbour,
                 char buffer[10];
                 sprintf(buffer, "%s %ld ", town->strategies[strat].very_short_name,
                         neighbour->migrants[strat]);
-                write(sock, buffer, strlen(buffer));
+                char *data = buffer;
+                int len = strlen(buffer);
+                do {
+                    int sent = write(sock, data, len);
+                    if(sent <= 0) return -1;
+                    data += sent; len -= sent;
+                } while(len > 0);
                 neighbour->migrants[strat] = 0;
             }
         }
