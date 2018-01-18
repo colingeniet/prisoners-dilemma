@@ -4,7 +4,7 @@
 # executable path on distant host
 town_exec=~/prisoners-dilemma/town
 # options
-town_options='-p 100'
+town_options='-P 100 -p 0.1'
 # ports
 mon_port=9652
 con_port=9653
