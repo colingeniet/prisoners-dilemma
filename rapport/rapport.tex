@@ -351,13 +351,43 @@ La simulation d'une ville comprend les threads suivant :
 \end{itemize}
 
 \paragraph{Connexions}
+Les connexions entre les villes et le moniteur, pour communiquer l'état des villes,
+sont toutes établies par le moniteur, sur un port ouvert par la ville.
 
+Pour les migrations, une ville ouvre un port comme serveur pour accepter des migrants, 
+et les autres villes se connectent sur celui ci comme clients pour envoyer les migrants.
 
+Pour toutes les communications, nous avons choisi des protocoles textes simples :
+
+\subparagraph{Protocole de communication moniteur}
+\begin{itemize}
+\item Le serveur (la ville) envoie des paquets de statistiques de la forme
+      
+      \verb|strat pop score|
+      
+      où \verb|strat| est un nom abrégé de stratégie, et \verb|pop|/\verb|score|
+      la population/le score courant de cette stratégie.
+\item Si le serveur ferme la connexion, la simulation de la ville s'arrête.
+\end{itemize}
+
+\subparagraph{Protocole de migration}
+\begin{itemize}
+\item Le serveur envoie les noms abrégés des stratégies autorisées, puis \verb|end|.
+
+      Par exemple : \verb|g m dd end| (stratégies gentille, méchante, donnant-donnant autorisées)
+\item Le client envoie ensuite des paires \verb|strat n|, où \verb|strat| et le nom d'une stratégie,
+      et \verb|n| le nombre de migrants pour cette stratégie.
+
+      Par exemple : \verb|g 100 m 20| (migration de 100 gentils puis 20 méchants)
+\end{itemize}
+
+Remarque : il est possible d'utiliser ce protocole avec \verb|telnet| 
+pour envoyer des migrants manuellement à une ville.
 
 \clearpage
 \appendix
 
-\section{Fichiers source}
+\section{Fichiers sources}
 
 \begin{tabular}[h]{lll}
 \tt{args.c}                       & parse les options pour \verb|town|         & partie 3    \\
