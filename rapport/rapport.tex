@@ -357,6 +357,10 @@ sont toutes établies par le moniteur, sur un port ouvert par la ville.
 Pour les migrations, une ville ouvre un port comme serveur pour accepter des migrants, 
 et les autres villes se connectent sur celui ci comme clients pour envoyer les migrants.
 
+Ces protocoles n'incluent pas de synchronisation entre les villes :
+nous avons choisi de faire évoluer les villes indépendamment, à des vitesses similaires
+(une étape par seconde), mais sans synchronisation.
+
 Pour toutes les communications, nous avons choisi des protocoles textes simples :
 
 \subparagraph{Protocole de communication moniteur}
@@ -380,7 +384,6 @@ Pour toutes les communications, nous avons choisi des protocoles textes simples 
 
       Par exemple : \verb|g 100 m 20| (migration de 100 gentils puis 20 méchants)
 \end{itemize}
-
 Remarque : il est possible d'utiliser ce protocole avec \verb|telnet| 
 pour envoyer des migrants manuellement à une ville.
 
