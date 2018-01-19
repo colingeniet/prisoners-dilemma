@@ -174,7 +174,7 @@ Nous avons décidé de nous assurer en priorité que la population totale reste 
 
 Pour cela, nous arrondissons supérieurement exactement le nombre de valeurs nécessaire pour atteindre
 la population cible, les autres étant arrondies inférieurement. 
-On choisit les valeurs avec les parties fractionnaires les plus grandes en premier pour l'arrondit supérieur,
+On choisit les valeurs avec les parties fractionnaires les plus grandes en premier pour l'arrondi supérieur,
 afin de minimiser la différence entre les valeurs théoriques, et celles arrondies.
 
 \paragraph{Simulation à valeurs réelles}
@@ -282,7 +282,7 @@ Lorsque \verb|monitor| se termine, toutes les villes connectées au moniteur son
 Pour permettre des migrations, les villes peuvent se connecter entre elles.
 Les options correspondantes sont \verb|-i|, \verb|-o| :
 \begin{itemize}
-\item \verb|-i PORT| ouvre le port \verb|PORT| pour accepter des connections entrantes. 
+\item \verb|-i PORT| ouvre le port \verb|PORT| pour accepter des connexions entrantes. 
       Cela permet à d'autre villes de se connecter dessus pour envoyer des migrants.
       Plusieurs villes pourront se connecter sur \verb|PORT|.
 \item \verb|-o HOST:PORT| permet de se connecter à une ville simulée sur \verb|HOST|, qui
@@ -338,12 +338,41 @@ les villes appropriées.
 
 \subsubsection{Architecture du programme}
 Nous décrirons ici rapidement l'organisation du programme simulant les villes,
-en particulier les différents threads et connections vers les autres villes, et le moniteur.
+en particulier les différents threads et connexions vers les autres villes, et le moniteur.
 
-\paragraph{}
+\paragraph{Threads}
+La simulation d'une ville comprend les threads suivant :
+\begin{itemize}
+\item Thread principal --- initialisation, communication avec le serveur central.
+\item Évolution de la population --- coordonné avec le thread principal via sémaphores.
+\item Un thread pour chaque connexion vers une autre ville (envoi de migrants).
+\item Un thread pour accepter les connexions entrantes d'autres villes.
+      Celui-ci lance de plus un nouveau thread pour chaque connexion entrante (réception de migrants).
+\end{itemize}
+
+\paragraph{Connexions}
+
 
 
 \clearpage
 \appendix
+
+\section{Fichiers source}
+
+\begin{tabular}[h]{lll}
+\tt{args.c}                       & parse les options pour \verb|town|         & partie 3    \\
+\tt{iterated\_{}prisoner.c}       & confrontation des stratégies, main         & partie 1    \\
+\tt{latex\_{}output.c}            & création des fichiers \LaTeX               & partie 1,2  \\
+\tt{monitor.c}                    & moniteur                                   & partie 3    \\
+\tt{neighbours.c}                 & connexion aux villes voisines              & partie 3    \\
+\tt{network.c}                    & fonctions réseau générales                 & partie 3    \\
+\tt{population.c}                 & simulation des populations                 & partie 2    \\
+\tt{populations\_{}simulation.c}  & simulation des populations, main           & partie 2    \\
+\tt{random.c}                     & génération aléatoire                       &             \\
+\tt{strategies.c}                 & implémentation des stratégies              &             \\
+\tt{town.c}                       & simulation de la population des villes     & partie 3    \\
+\tt{town\_{}simulation.c}         & simulation des villes, main                & partie 3    \\
+\tt{utils.c}                      & fonctions diverses                         &             \\
+\end{tabular}
 
 \end{document}
