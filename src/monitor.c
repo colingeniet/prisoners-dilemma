@@ -121,17 +121,19 @@ int main(int argc, char **argv) {
         for(int strat=0; strat<N_STRATEGIES; strat++) {
             printf("%s\t", strategies[strat].short_name);
         }
-        printf("\n");
+        printf("total\n");
         for(int host=0; host<n_hosts; host++) {
             if(strlen(host_names[host]) <= 14) {
                 printf("%-14s\t", host_names[host]);
             } else {
                 printf("%-11.11s...\t", host_names[host]);
             }
+            long total_pop=0;
             for(int strat=0; strat<N_STRATEGIES; strat++) {
                 printf("%ld\t", populations[host][strat]);
+                total_pop += populations[host][strat];
             }
-            printf("\n");
+            printf("%ld\n", total_pop);
         }
         printf("\n");
 

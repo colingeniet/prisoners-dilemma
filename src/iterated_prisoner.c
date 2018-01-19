@@ -18,8 +18,8 @@ int main(int argc, char **argv) {
     }
     n = atoi(argv[1]);
 
-    results = (int**)multi_malloc(2, (size_t)N_STRATEGIES,
-                                   (size_t)N_STRATEGIES*sizeof(int));
+    results = multi_malloc(2, (size_t)N_STRATEGIES,
+                           (size_t)N_STRATEGIES*sizeof(int));
     if(!results) fatal_perror("malloc");
 
     try_strategies(strategies, N_STRATEGIES, n, default_rewards, results);
