@@ -53,7 +53,7 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
         sem_wait(next);
 
         // reallocate memory if needed
-        if(step > steps_alloc) {
+        if(step >= steps_alloc) {
             steps_alloc *= 2;
             for(int i=0; i<town->n_strategies; i++) {
                 if(!town->allowed[i]) continue;
