@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Settings
+# installation path
+path=~/prisoners-dilemma/
+# options
+n_hosts=5
+con_port=9754
+
+town_exec=${path}town
+mon_exec=${path}monitor
+
+for host in $(seq 1 ${n_hosts}); do
+    host_name[host]=$(printf "%.2d.dptinfo.ens-cachan.fr" "${host}")
+done
+
+town_options[1]="-P 100 -p 0.2 -i ${con_port} -o ${host_name[2]}:${con_port} -o ${host_name[3]}:${con_port} -o ${host_name[5]}:${con_port}"
+town_options[2]="-P 30 -d m,ddd,pm,mm -p 0.3 -i ${con_port} -o ${host_name[3]}:${con_port} -o ${host_name[4]}:${con_port}"
+town_options[3]="-d all -a g,m,dd -P g:10 -P m,dd:30 -p 0.05 -i ${con_port} -o ${host_name[1]}:${con_port}  -o ${host_name[2]}:${con_port}  -o ${host_name[5]}:${con_port}"
+town_options[4]="-P 10 -P m,pm,s,mf:100 -p 0.4 -i ${con_port} -o ${host_name[2]}:${con_port}  -o ${host_name[4]}:${con_port} -o ${host_name[5]}:${con_port}"
+town_options[5]="-P 100 -r 3,8,0,3 -p 0.1 -i ${con_port} -o ${host_name[1]}:${con_port} -o ${host_name[2]}:${con_port} -o ${host_name[3]}:${con_port}"
+# monitoring port
+mon_port=9755
+
+
+mon_args=
+for host in $(seq 1 ${n_hosts}); do
+    mon_args="${mon_args} ${host_name[host]}:${mon_port}"
+    ssh "${host_name[host]}" "${town_exec} ${town_options[host]} -m ${mon_port}" &
+done
+${mon_exec} ${mon_args}

@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Settings
+# options
+town_options='-P 100 -p 0.1'
+# ports
+first_port=6614
+n=10
+
+mon_args=
+for i in $(seq 0 $((${n} - 1))); do
+    con_port[i]=$((first_port + 2*i))
+    mon_port[i]=$((first_port + 1 + 2*i))
+    mon_args="${mon_args} localhost:${mon_port[i]}"
+done
+
+for i in $(seq 0 $((${n} - 1))); do
+    (
+    # create the list of neighbours with -o option
+    neighbours=
+    for j in $(seq 0 $((${n} - 1))); do
+        if [[ i -ne j ]]; then
+            neighbours="${neighbours} -o localhost:${con_port[j]}"
+        fi
+    done
+    # launch town simulations
+    options="${town_options} -m ${mon_port[i]} -i ${con_port[i]} ${neighbours}"
+    ./town ${options}
+    ) &
+done
+# launch monitoring
+./monitor ${mon_args}

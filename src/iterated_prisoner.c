@@ -14,34 +14,25 @@ int main(int argc, char **argv) {
 
     if(argc != 2) {
         fprintf(stderr, "usage : iterated_prisoner <steps>\n");
-        ret = 1;
-        goto end;
+        exit(EXIT_FAILURE);
     }
     n = atoi(argv[1]);
 
-    results = (int**)multi_mallocv(2, (size_t)N_STRATEGIES,
-                                   (size_t)N_STRATEGIES*sizeof(int));
-    if(!results) {
-        perror("iterated_prisoner");
-        ret = 1;
-        goto end;
-    }
+    results = multi_malloc(2, (size_t)N_STRATEGIES,
+                           (size_t)N_STRATEGIES*sizeof(int));
+    if(!results) fatal_perror("malloc");
 
     try_strategies(strategies, N_STRATEGIES, n, default_rewards, results);
 
     output = fopen(latex_output, "w");
-    if(!output) {
-        perror("iterated_prisoner");
-        ret = 1;
-        goto end;
-    }
+    if(!output) fatal_perror("fopen");
+
     print_strategies_latex(output, N_STRATEGIES, results, strategies);
     fclose(output);
 
     if(!(ret = compile_latex(latex_output)))
         ret = open_pdf(pdf_output);
 
-    end:
-    multi_freev(results, 2, (size_t)N_STRATEGIES);
+    multi_free(results, 2, (size_t)N_STRATEGIES);
     return ret;
 }

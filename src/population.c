@@ -19,14 +19,14 @@ int populations(struct strategy_entry *strategies, int n_strategies,
 
     points = malloc(n_strategies * sizeof(long));
     if(!points) {
-        perror("proportions_detail");
+        perror("malloc");
         ret = -1;
         goto end;
     }
-    scores = multi_mallocv(3, (size_t)n_strategies, (size_t)n_strategies,
+    scores = multi_malloc(3, (size_t)n_strategies, (size_t)n_strategies,
                               (size_t)n * sizeof(int));
     if(!scores) {
-        perror("proportions_detail");
+        perror("malloc");
         ret = -1;
         goto end;
     }
@@ -60,17 +60,24 @@ int populations(struct strategy_entry *strategies, int n_strategies,
         for(int i=0; i<n_strategies; i++) {
             sum += points[i];
         }
-
-        for(int i=0; i<n_strategies; i++) {
-            /* TO DO : ensure the total population does not change
-             * the sum of the various populations is not exactly constant,
-             * but at least this makes sure it does not change too much */
-            result[step][i] = (total_pop * points[i]) / sum;
+        if(sum) {
+            if(proportion(result[step], points, n_strategies, total_pop)) {
+                perror("malloc");
+                ret = -1;
+                goto end;
+            }
+        } else {
+            // if the total score is 0, do nothing !
+            // this can happen if the population is empty,
+            // or with some weird reward values
+            for(int i=0; i<n_strategies; i++) {
+                result[step][i] = result[step-1][i];
+            }
         }
     }
 
     end:
-    multi_freev(scores, 3, (size_t)n_strategies, (size_t)n_strategies);
+    multi_free(scores, 3, (size_t)n_strategies, (size_t)n_strategies);
     free(points);
     return ret;
 }
@@ -89,14 +96,14 @@ int proportions(struct strategy_entry *strategies, int n_strategies,
 
     points = malloc(n_strategies * sizeof(double));
     if(!points) {
-        perror("proportions_detail");
+        perror("malloc");
         ret = -1;
         goto end;
     }
-    scores = multi_mallocv(3, (size_t)n_strategies, (size_t)n_strategies,
+    scores = multi_malloc(3, (size_t)n_strategies, (size_t)n_strategies,
                               (size_t)n * sizeof(int));
     if(!scores) {
-        perror("proportions_detail");
+        perror("malloc");
         ret = -1;
         goto end;
     }
@@ -123,13 +130,21 @@ int proportions(struct strategy_entry *strategies, int n_strategies,
             sum += points[i];
         }
 
-        for(int i=0; i<n_strategies; i++) {
-            result[step][i] = points[i] / sum;
+        // if the total score is 0, do nothing !
+        // this can happen with some weird reward values
+        if(sum != 0) {
+            for(int i=0; i<n_strategies; i++) {
+                result[step][i] = points[i] / sum;
+            }
+        } else {
+            for(int i=0; i<n_strategies; i++) {
+                result[step][i] = result[step-1][i];
+            }
         }
     }
 
     end:
-    multi_freev(scores, 3, (size_t)n_strategies, (size_t)n_strategies);
+    multi_free(scores, 3, (size_t)n_strategies, (size_t)n_strategies);
     free(points);
     return ret;
 }

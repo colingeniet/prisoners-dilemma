@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Settings
+# installation path
+path=~/prisoners-dilemma/
+# options
+town_options='-P 100 -p 0.1'
+# ports
+mon_port=9652
+con_port=9653
+
+n_host=23
+
+town_exec=${path}town
+mon_exec=${path}monitor
+
+mon_args=
+for host in $(seq 1 ${n_host}); do
+    host_name[host]=$(printf "%.2d.dptinfo.ens-cachan.fr" "${host}")
+    mon_args="${mon_args} ${host_name[host]}:${mon_port}"
+done
+
+for host in $(seq 1 ${n_host}); do
+    (
+    # create the list of neighbours with -o option
+    neighbours=
+    for i in $(seq 1 ${n_host}); do
+        if [[ i -ne host ]]; then
+            neighbours="${neighbours} -o ${host_name[i]}:${con_port}"
+        fi
+    done
+    # launch town simulations
+    options="${town_options} -m ${mon_port} -i ${con_port} ${neighbours}"
+    ssh "${host_name[host]}" "${town_exec} ${options}"
+    ) &
+done
+# launch monitoring
+${mon_exec} ${mon_args}

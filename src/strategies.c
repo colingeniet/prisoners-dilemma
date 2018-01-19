@@ -2,48 +2,48 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-action nice(int n_played, action *hist, int n_coop) {
+action strat_nice(int n_played, action *hist, int n_coop) {
     return COOP;
 }
 
-action bad(int n_played, action *hist, int n_coop) {
+action strat_bad(int n_played, action *hist, int n_coop) {
     return DEFECTS;
 }
 
-action give_give(int n_played, action *hist, int n_coop) {
+action strat_give_give(int n_played, action *hist, int n_coop) {
     return n_played < 1 || hist[n_played-1];
 }
 
-action distrustful(int n_played, action *hist, int n_coop) {
+action strat_distrustful(int n_played, action *hist, int n_coop) {
     return n_played >= 1 && hist[n_played-1];
 }
 
-action give_give_hard(int n_played, action *hist, int n_coop) {
+action strat_give_give_hard(int n_played, action *hist, int n_coop) {
     return (n_played < 1 || hist[n_played-1])
         && (n_played < 2|| hist[n_played-2]);
 }
 
-action spiteful(int n_played, action *hist, int n_coop) {
+action strat_spiteful(int n_played, action *hist, int n_coop) {
     return n_coop == n_played;
 }
 
-action periodic_nice(int n_played, action *hist, int n_coop) {
+action strat_periodic_nice(int n_played, action *hist, int n_coop) {
     return n_played%3 != 2;
 }
 
-action periodic_bad(int n_played, action *hist, int n_coop)  {
+action strat_periodic_bad(int n_played, action *hist, int n_coop)  {
     return n_played%3 == 2;
 }
 
-action majority_nice(int n_played, action *hist, int n_coop) {
+action strat_majority_nice(int n_played, action *hist, int n_coop) {
     return 2*n_coop >= n_played;
 }
 
-action majority_bad(int n_played, action *hist, int n_coop) {
+action strat_majority_bad(int n_played, action *hist, int n_coop) {
     return 2*n_coop > n_played;
 }
 
-action poll(int n_played, action *hist, int n_coop) {
+action strat_poll(int n_played, action *hist, int n_coop) {
     if(n_played < 3) return !(n_played%3);
     else if(hist[2] && hist[3]) return DEFECTS;
     else return hist[n_played-1];
@@ -51,17 +51,17 @@ action poll(int n_played, action *hist, int n_coop) {
 
 
 struct strategy_entry strategies[N_STRATEGIES] = {
-   {nice, "gentille", "gent", "g"},
-   {bad, "méchante", "méch", "m"},
-   {give_give, "donnant-donnant", "d-d", "dd"},
-   {distrustful, "méfiante", "méf", "mf"},
-   {give_give_hard, "donnant-donnant-dur", "d-d dur", "ddd"},
-   {spiteful, "rancunière", "ranc", "r"},
-   {periodic_nice, "périodique gentille", "p gent", "pg"},
-   {periodic_bad, "périodique méchante", "p méch", "pm"},
-   {majority_nice, "majorité mou", "maj mou", "mm"},
-   {majority_bad, "majorité dur", "maj dur", "md"},
-   {poll, "sondeur", "sond", "s"}
+   {strat_nice, "gentille", "gent", "g"},
+   {strat_bad, "méchante", "méch", "m"},
+   {strat_give_give, "donnant-donnant", "d-d", "dd"},
+   {strat_distrustful, "méfiante", "méf", "mf"},
+   {strat_give_give_hard, "donnant-donnant-dur", "d-d dur", "ddd"},
+   {strat_spiteful, "rancunière", "ranc", "r"},
+   {strat_periodic_nice, "périodique gentille", "p gent", "pg"},
+   {strat_periodic_bad, "périodique méchante", "p méch", "pm"},
+   {strat_majority_nice, "majorité mou", "maj mou", "mm"},
+   {strat_majority_bad, "majorité dur", "maj dur", "md"},
+   {strat_poll, "sondeur", "sond", "s"}
 };
 
 int default_rewards[2][2] = {{1, 5}, {0, 3}};
@@ -76,7 +76,7 @@ int iterate_dilemma(strategy player1, strategy player2, int n,
     hist1 = (action*)malloc(n*sizeof(action));
     hist2 = (action*)malloc(n*sizeof(action));
     if(!hist1 || !hist2) {
-        perror("iterate_dilemma");
+        perror("malloc");
         result=-1;
         goto end;
     }
@@ -133,7 +133,7 @@ int iterate_dilemma_detail(strategy player1, strategy player2, int n,
     hist1 = (action*)malloc(n*sizeof(action));
     hist2 = (action*)malloc(n*sizeof(action));
     if(!hist1 || !hist2) {
-        perror("iterate_dilemma_detail");
+        perror("malloc");
         result=-1;
         goto end;
     }

@@ -8,7 +8,7 @@
 \usepackage{pgfplots}
 \pgfplotsset{width=10cm}
 
-\title{Projet Architecture --- Système}
+\title{Dilemme du prisonnier \\ Projet Architecture --- Système}
 \author{Yoan Geran \and Colin Geniet}
 \begin{document}
 \maketitle
@@ -27,8 +27,7 @@ Ce programme simule toutes les combinaisons des 11 stratégies standard pour \ve
 et crée \verb|iterated_dilemma.tex| contenant un tableau des scores cumulés.
 Voir la table \ref{strat_table} pour un exemple de résultat.
 
-Le programme tente de compiler le fichier \LaTeX{} avec \verb|pdflatex|, et de l'afficher avec \verb|evince|
-(modifiable dans \verb|latex_output.h|).
+Le programme tente de compiler le fichier \LaTeX{} avec \verb|pdflatex|, et de l'afficher avec \verb|evince|.
 
 \begin{table}
 \caption[Comparaison des stratégies]{Comparaisons des stratégies sur le dilemme du prisonnier itéré.}
@@ -76,13 +75,13 @@ lignes : joueur 1 --- colonnes : joueur 2
 \end{table}
 
 \subsection{Conception}
-Cette première partie pose assez peu de problèmes de conception, 
+Cette première partie pose assez peu de problèmes de conception,
 le principal étant celui de la représentation des stratégies.
 Nous avons décidé de les représenter par une fonction de décision, qui choisit une action
 (coopérer ou trahir) selon ce qui s'est passé lors des parties précédentes.
 
 Pour pouvoir manipuler les stratégies comme paramètre dans des fonctions d'ordre supérieur, 
-nous avons choisit la signature commune suivante pour toutes les stratégies :
+nous avons choisi la signature commune suivante pour toutes les stratégies :
 \begin{verbatim}
 action (*strategy)(int n_played, action *hist, int n_coop)
 \end{verbatim}
@@ -95,7 +94,7 @@ Les paramètres sont :
 \end{itemize}
 Le choix de ces paramètres permet d'implémenter efficacement (en temps constant)
 toutes les stratégies proposées. Bien sûr, \verb|n_coop| est redondant puisque
-l'on peut le calculer à partir de \verb|hist|, mais cela impliquerait un surcout
+l'on peut le calculer à partir de \verb|hist|, mais cela impliquerait un surcoût
 considérable sur un nombre important d'itérations.
 On pourrait également réduire \verb|hist|, car les stratégies implémentées n'en
 utilisent qu'une partie réduite, mais cela limiterait alors sévèrement la
@@ -114,11 +113,10 @@ avec des populations initiales toutes de taille \verb|initial_population|,
 et crée \verb|populations.tex| contenant le graphe de l'évolution de la taille des populations.
 Voir la figure \ref{sim_plot} pour un exemple de résultat.
 
-Le programme tente de compiler le fichier \LaTeX{} avec \verb|pdflatex|, et de l'afficher avec \verb|evince|
-(modifiable dans \verb|latex_output.h|).
+Le programme tente de compiler le fichier \LaTeX{} avec \verb|pdflatex|, et de l'afficher avec \verb|evince|.
 
-Le paramètre \verb|initial_population| est optionnel. S'il n'est pas fournit, le programme travaille
-alors avec des proportions de population réelles, au lieu de tailles de populations discrètes.
+Le paramètre \verb|initial_population| est optionnel. S'il n'est pas fourni, le programme travaille
+alors avec des proportions de population réelles, plutôt qu'avec des tailles de populations discrètes.
 Le résultat correspond alors au comportement limite, pour des populations grandes.
 
 \begin{figure}
@@ -164,6 +162,250 @@ Le résultat correspond alors au comportement limite, pour des populations grand
 \end{center}
 \end{figure}
 
+\subsection{Conception}
+Les formules d'évolution de la population étant données, cette partie ne laisse pas beaucoup de choix pour l'implémentation.
+On mentionnera rapidement la méthode d'arrondi, ainsi que notre proposition de simuler le comportement limite avec
+des proportions réelles de populations.
+
+\paragraph{Arrondis}
+Les tailles de populations données par les formules d'évolution de la population ne sont a priori pas entières.
+Il est donc nécessaire d'effectuer des arrondis.
+Nous avons décidé de nous assurer en priorité que la population totale reste constante durant ceux-ci.
+
+Pour cela, nous arrondissons supérieurement exactement le nombre de valeurs nécessaire pour atteindre
+la population cible, les autres étant arrondies inférieurement. 
+On choisit les valeurs avec les parties fractionnaires les plus grandes en premier pour l'arrondi supérieur,
+afin de minimiser la différence entre les valeurs théoriques, et celles arrondies.
+
+\paragraph{Simulation à valeurs réelles}
+On remarque facilement que les résultats de la simulation varient peu --- au sens des proportions --- avec la population, dès que celle-ci
+est assez grande ($\ge 10$ par stratégie).
+Il est naturel dans ces conditions d'envisager d'effectuer la simulation en remplaçant les tailles des populations
+par des proportions dans une population supposée grande. Cela correspond à une simulation du comportement limite (population grande).
+
+En effet, les seules différences avec la simulation discrète sont :
+\begin{itemize}
+\item l'absence d'arrondis
+\item le fait qu'un individu ne se confronte pas lui-même est négligé
+\end{itemize}
+Ces deux effets deviennent négligeables pour une population importante.
+
+Nous avons donc implémenté cette variante, qui est utilisée si la population initiale n'est pas donnée.
+
+
 \section{Simulation distribuée}
+\subsection{Usage}
+\subsubsection*{résumé}
+Compilation :
+\begin{verbatim}
+$ make
+\end{verbatim}
+
+\verb|./town| simule une ville, et \verb|./monitor| contrôle l'évolution de la population de plusieurs villes en temps réel.
+Les scripts \verb|deploy_all|, \verb|deploy_custom| sont des exemples de déploiement sur les machines de la salle 411.
+
+\subsubsection{Scripts de déploiement}
+\verb|deploy_local| lance la simulation de 10 villes localement, avec les mêmes options pour toutes.
+
+\verb|deploy_all| et \verb|deploy_custom| sont des exemples de déploiement sur les machines de la salle 411.
+\verb|deploy_all| lance des simulations de villes sur toutes les machines, avec les mêmes options pour toutes.
+\verb|deploy_custom| lance la simulation de quelques villes, avec des options plus variées.
+
+\verb|deploy_all| et \verb|deploy_custom| sont prévus pour être lancés depuis une machine de la salle 411.
+\verb|ssh| est utilisé pour lancer les simulations distantes, et doit donc être correctement configuré :
+\begin{verbatim}
+$ ssh XX.dptinfo.ens-cachan.fr
+\end{verbatim}
+exécuté sur la machine où les scripts sont lancés doit se connecter à la machine \verb|XX|.
+
+Pour lancer la simulation avec \verb|XX.dptinfo.ens-cachan.fr| comme machine mère, il faut faire
+sur cette dernière (en supposant \verb|ssh| correctement configuré) :
+\begin{itemize}
+\item Extraire l'archive du programme dans \verb|PATH|
+\item Dans \verb|PATH/prisoner/|, faire : \verb|$ make|
+\item Dans les scripts \verb|deploy_all| et \verb|deploy_custom|, dans \verb|PATH/prisoner/|,
+      mettre la variable \verb|path| à \verb|PATH/prisoner/|
+\item Lancer \verb|deploy_all|, ou \verb|deploy_custom|
+\end{itemize}
+
+Les simulations de villes seront lancées sur les différentes machines, et un moniteur, lancé sur \verb|XX| s'y connectera.
+
+Enfin, des variables permettent de modifier les options de simulation dans tous les scripts.
+
+
+\subsubsection{Simulation d'une ville}
+L'exécutable \verb|town| simule une ville, avec la possibilité de modifier les stratégies autorisées,
+les valeurs des récompenses, et les populations initiales. Par défaut, l'évolution des populations
+est affichée sur la sortie standard.
+
+Par exemple :
+\begin{verbatim}
+$ ./town -P 100 -P dd:200 -d m,pg -r 2,8,0,4
+\end{verbatim}
+lance la simulation avec les options :
+\begin{description}
+\item[\tt{-P 100}] : population initiale de 100 pour toutes les stratégies.
+\item[\tt{-P dd:200}] : population initiale de 200 pour la stratégie `donnant-donnant'.
+\item[\tt{-d m,pg}] : les stratégies `méchante' et `périodique gentille' sont interdites.
+\item[\tt{-r 2,8,0,4}] : récompenses $P=2$, $T=8$, $D=0$, $C=4$.
+\end{description}
+
+La totalité des options est décrite dans
+\begin{verbatim}
+$ ./town --help
+\end{verbatim}
+
+Les abréviations utilisées pour les noms de stratégies sont décrites par
+\begin{verbatim}
+$ ./town --names
+\end{verbatim}
+
+\subsubsection{Moniteur}
+L'exécutable \verb|monitor| sert à contrôler l'évolution de la population de plusieurs villes sur des machines distantes.
+
+Utilisation :
+\begin{verbatim}
+$ ./monitor [HOST...]
+\end{verbatim}
+Chaque paramètre \verb|HOST| doit être de la forme \verb|HOSTNAME:PORT|.
+Le programme tente de se connecter à \verb|HOSTNAME| sur le port \verb|PORT| pour afficher l'état de la population simulée sur \verb|HOSTNAME|.
+Pour cela, \verb|town| doit avoir été lancé sur \verb|HOSTNAME| avec l'option \verb|-m PORT|.
+
+Par exemple :
+\begin{verbatim}
+$ ./town -p 100 -m 4000 & ./monitor localhost:4000
+\end{verbatim}
+lance localement la simulation d'une ville et d'un moniteur pour contrôler sa population, connecté sur le port 4000.
+
+Lorsque \verb|monitor| se termine, toutes les villes connectées au moniteur sont automatiquement terminées.
+
+\subsubsection{Migrations}
+Pour permettre des migrations, les villes peuvent se connecter entre elles.
+Les options utilisées sont \verb|-i|, \verb|-o| :
+\begin{itemize}
+\item \verb|-i PORT| ouvre le port \verb|PORT| pour accepter des connexions entrantes. 
+      Cela permet à d'autre villes de se connecter dessus pour envoyer des migrants.
+      Plusieurs villes pourront se connecter sur \verb|PORT|.
+\item \verb|-o HOST:PORT| permet de se connecter à une ville simulée sur \verb|HOST|, qui
+      a ouvert le port \verb|PORT| pour lui envoyer des migrants.
+\end{itemize}
+
+En pratique, pour qu'une ville $A$ envoie des migrants à une ville $B$ :
+
+Commande pour $B$ exécutée sur \verb|HOST| :
+\begin{verbatim}
+$ ./town [OPTIONS] -i PORT
+\end{verbatim}
+
+Commande pour $A$ :
+\begin{verbatim}
+$ ./town [OPTIONS] -o HOST:PORT
+\end{verbatim}
+
+Enfin, \verb|-p PROB| modifie la probabilité de migration pour chaque habitant d'une ville,
+à chaque étape de la simulation (0 par défaut).
+
+
+\subsection{Conception}
+\subsubsection{Règles de simulation}
+\paragraph{Règles générales}
+L'idée générale de cette dernière partie est d'implémenter les mêmes règles d'évolution qu'à la partie 2 sur chacune des villes,
+en ajoutant la possibilité de modifier plus de paramètres, et de permettre les migrations.
+
+La répartition des stratégies dans chaque ville évolue donc en fonction du nombre de points obtenus par cette stratégie dans la ville.
+La population totale, en revanche, reste constante (sans tenir compte des migrations).
+
+Par ailleurs, on notera que la simulation des différentes villes n'est pas synchronisée. 
+Simplement, toutes les villes évoluent approximativement à la même vitesse de une étape par seconde.
+
+\paragraph{Paramètres}
+Par rapport à la partie 2, des paramètres additionnels peuvent être modifiés, et ce pour chaque ville séparément :
+\begin{itemize}
+\item les stratégies possibles (parmi les 11 proposées)
+\item la population initiale, pour chacune des stratégies séparément
+\item les valeurs des récompenses $P,T,D,C$
+\end{itemize}
+
+\paragraph{Migrations}
+Les règles de migration sont les suivantes :
+À chaque étape de la simulation d'une ville, tout individu a une probabilité (donnée comme paramètre) de décider de migrer.
+Dans le cas où un individu décide de migrer, il choisit comme destination une ville acceptant la stratégie de cet individu, parmi celles disponibles,
+avec une probabilité uniforme. S'il n'existe pas de telle ville, la migration est annulée : la stratégie de l'individu ne peut pas changer durant la migration.
+
+Les villes vers lesquelles une migration est possible --- dites voisines --- sont celles sur lesquelles la ville s'est connectée
+(voir options \verb|-i| et \verb|-o|). Les migrations possibles peuvent donc former n'importe quel graphe orienté, en connectant
+les villes appropriées.
+
+\subsubsection{Architecture du programme}
+Nous décrirons ici rapidement l'organisation du programme simulant les villes,
+en particulier les différents threads et connexions vers les autres villes, et le moniteur.
+
+\paragraph{Threads}
+La simulation d'une ville comprend les threads suivant :
+\begin{itemize}
+\item Thread principal : initialisation, communication avec le moniteur.
+\item Évolution de la population, coordonné avec le thread principal via sémaphores.
+\item Un thread pour chaque connexion vers une autre ville (envoi de migrants).
+\item Un thread pour accepter les connexions entrantes d'autres villes.
+      Celui-ci lance de plus un nouveau thread pour chaque connexion entrante (réception de migrants).
+\end{itemize}
+
+\paragraph{Connexions}
+Les connexions entre les villes et le moniteur, pour communiquer l'état des villes,
+sont toutes établies par le moniteur, sur un port ouvert par la ville.
+
+Pour les migrations, une ville ouvre un port comme serveur pour accepter des migrants, 
+et les autres villes se connectent sur celui-ci comme clients pour envoyer les migrants.
+
+Ces protocoles n'incluent pas de synchronisation entre les villes :
+nous avons choisi de faire évoluer les villes indépendamment, à des vitesses similaires
+(une étape par seconde), mais sans synchronisation.
+
+Pour toutes les communications, nous avons choisi des protocoles textes simples :
+
+\subparagraph{Protocole de communication moniteur}
+\begin{itemize}
+\item Le serveur (la ville) envoie des paquets de statistiques de la forme
+      
+      \verb|strat pop score|
+      
+      où \verb|strat| est un nom abrégé de stratégie, et \verb|pop|/\verb|score|
+      la population/le score courant de cette stratégie.
+\item Si le serveur ferme la connexion, la simulation de la ville s'arrête.
+\end{itemize}
+
+\subparagraph{Protocole de migration}
+\begin{itemize}
+\item Le serveur envoie les noms abrégés des stratégies autorisées, puis \verb|end|.
+
+      Par exemple : \verb|g m dd end| (stratégies gentille, méchante, donnant-donnant autorisées)
+\item Le client envoie ensuite des paires \verb|strat n|, où \verb|strat| est le nom d'une stratégie,
+      et \verb|n| le nombre de migrants pour cette stratégie.
+
+      Par exemple : \verb|g 100 m 20| (migration de 100 gentils puis 20 méchants)
+\end{itemize}
+Remarque : il est possible d'utiliser ce protocole avec \verb|telnet| 
+pour envoyer des migrants manuellement à une ville.
+
+\clearpage
+\appendix
+
+\section{Fichiers sources}
+
+\begin{tabular}[h]{lll}
+\tt{args.c}                       & parse les options pour \verb|town|         & partie 3    \\
+\tt{iterated\_{}prisoner.c}       & confrontation des stratégies, \verb|main|  & partie 1    \\
+\tt{latex\_{}output.c}            & création des fichiers \LaTeX               & partie 1,2  \\
+\tt{monitor.c}                    & moniteur                                   & partie 3    \\
+\tt{neighbours.c}                 & connexion aux villes voisines              & partie 3    \\
+\tt{network.c}                    & fonctions réseau générales                 & partie 3    \\
+\tt{population.c}                 & simulation des populations                 & partie 2    \\
+\tt{populations\_{}simulation.c}  & simulation des populations, \verb|main|    & partie 2    \\
+\tt{random.c}                     & génération aléatoire                       &             \\
+\tt{strategies.c}                 & implémentation des stratégies              &             \\
+\tt{town.c}                       & simulation de la population des villes     & partie 3    \\
+\tt{town\_{}simulation.c}         & simulation des villes, \verb|main|         & partie 3    \\
+\tt{utils.c}                      & fonctions diverses                         &             \\
+\end{tabular}
 
 \end{document}
