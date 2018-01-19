@@ -61,7 +61,10 @@ void *handle_neighbour_thread(void *_data) {
  * thread for each connection. */
 int accept_neighbours(struct town_descriptor *town, sem_t *pop_lock, short port) {
     int sock = open_listen_socket(port);
-    if(sock < 0) return -1;
+    if(sock < 0) {
+        perror("open_listen_socket");
+        return -1;
+    }
 
     for(;;) {
         int new_client = wait_for_client(sock);

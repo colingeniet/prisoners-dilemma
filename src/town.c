@@ -9,7 +9,7 @@
 void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
                          sem_t *next, sem_t *done, double prob_mig,
                          struct neighbour *neighbours, int n_neighbours) {
-    int steps_alloc = 128;
+    int steps_alloc = 16;
 
     // initialize arrays
     action ***actions = NULL;

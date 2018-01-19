@@ -12,15 +12,11 @@
 int connect_to_server(char *server, short port) {
     // creates socket
     int sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if(sock < 0) {
-        perror("socket");
-        return -1;
-    }
+    if(sock < 0) return -1;
 
     // get server address
 	struct hostent *address = gethostbyname(server);
 	if (!address) {
-        herror("gethostbyname");
         close(sock);
         return -1;
     }
@@ -33,7 +29,6 @@ int connect_to_server(char *server, short port) {
 
 	// connect
 	if(connect(sock,(struct sockaddr *)&sock_addr, sizeof(sock_addr)) < 0) {
-        perror("connect");
         close(sock);
         return -1;
     }
@@ -43,10 +38,7 @@ int connect_to_server(char *server, short port) {
 int open_listen_socket(short port) {
     // creates socket
     int sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if(sock < 0) {
-        perror("socket");
-        return -1;
-    }
+    if(sock < 0) -1;
 
     // creates socket address
     struct sockaddr_in sock_addr;
@@ -56,12 +48,10 @@ int open_listen_socket(short port) {
 
     // bind socket and set in listen mode
     if(bind(sock, (struct sockaddr *)&sock_addr, sizeof(sock_addr)) < 0) {
-        perror("bind");
         close(sock);
 		return -1;
 	}
     if(listen(sock,SOMAXCONN) < 0) {
-        perror("listen");
         close(sock);
         return -1;
     }
@@ -73,7 +63,6 @@ int wait_for_client(int socket) {
         int client = accept(socket, NULL, NULL);
         if(client < 0) {
             if (errno == EINTR || errno == EWOULDBLOCK) continue;
-            perror("accept");
             return -1;
         }
         return client;

@@ -80,10 +80,16 @@ void *monitor_com(void *_data) {
 
     // create connection
     int socket = open_listen_socket(port);
-    if(socket < 0) exit(EXIT_FAILURE);
+    if(socket < 0) {
+        perror("open_listen_socket");
+        exit(EXIT_FAILURE);
+    }
 
     int fd = wait_for_client(socket);
-    if(socket < 0) exit(EXIT_FAILURE);
+    if(socket < 0) {
+        perror("wait_for_client");
+        exit(EXIT_FAILURE);
+    }
 
     // set global monitoring FILE
     *mon = fdopen(fd, "w");
