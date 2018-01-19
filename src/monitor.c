@@ -14,6 +14,7 @@ struct mon_thread_data {
     char *host_name;
     short port;
     long *pop;
+    long *score;
     char *modified;
     sem_t *pop_sem;
 };
@@ -26,6 +27,7 @@ void *update_pop(void *_data) {
      * one step have been received.
      * This array is used to temporarely store them. */
     long pop_tmp[N_STRATEGIES];
+    long score_tmp[N_STRATEGIES];
 
     // try to connect
     int fd = -1;
@@ -38,15 +40,23 @@ void *update_pop(void *_data) {
     while(1) {
         // wait for data
         for(int strat=0; strat<N_STRATEGIES; strat++) {
-            if(fscanf(stream, " %ld", &pop_tmp[strat]) == EOF) {
+            int ret = fscanf(stream, " %ld %ld", &pop_tmp[strat], &score_tmp[strat]);
+            if(ret <= 0) {
                 fprintf(stderr, "connection with %s closed.\n", data->host_name);
                 return NULL;
+            } else if(ret == 1) {
+                ret = fscanf(stream, " %ld", &score_tmp[strat]);
+                if(ret <= 0) {
+                    fprintf(stderr, "connection with %s closed.\n", data->host_name);
+                    return NULL;
+                }
             }
         }
         // update
         sem_wait(data->pop_sem);
         for(int strat=0; strat<N_STRATEGIES; strat++) {
             data->pop[strat] = pop_tmp[strat];
+            data->score[strat] = score_tmp[strat];
         }
         *data->modified = 1;
         sem_post(data->pop_sem);
@@ -58,6 +68,7 @@ int main(int argc, char **argv) {
     char **host_names = argv+1;
 
     long **populations;
+    long **scores;
     struct mon_thread_data *data;
     pthread_t *threads;
     char modified = 1;
@@ -65,6 +76,11 @@ int main(int argc, char **argv) {
 
     populations = multi_malloc(2, n_hosts, N_STRATEGIES*sizeof(long));
     if(!populations) {
+        perror("malloc");
+        goto fail;
+    }
+    scores = multi_malloc(2, n_hosts, N_STRATEGIES*sizeof(long));
+    if(!scores) {
         perror("malloc");
         goto fail;
     }
@@ -102,6 +118,7 @@ int main(int argc, char **argv) {
         data[host].host_name = host_names[host];
         data[host].port = port;
         data[host].pop = populations[host];
+        data[host].score = scores[host];
         data[host].modified = &modified;
         data[host].pop_sem = &pop_sem;
         pthread_create(&threads[host], NULL, update_pop, &data[host]);
@@ -134,6 +151,14 @@ int main(int argc, char **argv) {
                 total_pop += populations[host][strat];
             }
             printf("%ld\n", total_pop);
+
+            printf(" --scores\t");
+            long total_score=0;
+            for(int strat=0; strat<N_STRATEGIES; strat++) {
+                printf("%ld\t", scores[host][strat]);
+                total_score += scores[host][strat];
+            }
+            printf("%ld\n", total_score);
         }
         printf("\n");
 

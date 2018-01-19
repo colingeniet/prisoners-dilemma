@@ -289,10 +289,13 @@ struct argp_data parse_arguments(int argc, char **argv) {
     if(!town->allowed) fatal_perror("malloc");
     town->population = malloc(town->n_strategies * sizeof(long));
     if(!town->population) fatal_perror("malloc");
+    town->scores = malloc(town->n_strategies * sizeof(long));
+    if(!town->scores) fatal_perror("malloc");
 
     for(int i=0; i<town->n_strategies; i++) {
         town->allowed[i] = 1;
         town->population[i] = 0;
+        town->scores[i] = 0;
     }
 
     data.town = town;

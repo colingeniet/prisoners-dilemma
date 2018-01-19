@@ -20,10 +20,6 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
     n_coop = multi_malloc(2, town->n_strategies, town->n_strategies * sizeof(int));
     if(!n_coop) fatal_perror("malloc");
 
-    long *scores = NULL;
-    scores = malloc(town->n_strategies * sizeof(long));
-    if(!scores) fatal_perror("malloc");
-
     long *migrants = NULL;
     if(n_neighbours > 0) {
         migrants = malloc(n_neighbours * sizeof(long));
@@ -89,16 +85,16 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
 
         for(int i=0; i<town->n_strategies; i++) {
             if(!town->allowed[i]) continue;
-            scores[i] = 0;
+            town->scores[i] = 0;
             for(int j=0; j<town->n_strategies; j++) {
                 if(!town->allowed[j]) continue;
                 // score of i vs j at current step
                 long score = (*town->rewards)[actions[i][j][step]]
                                              [actions[j][i][step]];
-                if(i != j) scores[i] += score * town->population[j];
-                else scores[i] += score * (town->population[i] - 1);
+                if(i != j) town->scores[i] += score * town->population[j];
+                else town->scores[i] += score * (town->population[i] - 1);
             }
-            scores[i] *= town->population[i];
+            town->scores[i] *= town->population[i];
         }
 
         // update population
@@ -106,7 +102,7 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
         for(int i=0; i<town->n_strategies; i++) {
             if(town->allowed[i]) {
                 total_pop += town->population[i];
-                total_score += scores[i];
+                total_score += town->scores[i];
             }
         }
 
@@ -114,7 +110,7 @@ void population_parallel(struct town_descriptor *town, sem_t *pop_lock,
         // this can happen if the population is empty,
         // or with some weird reward values
         if(total_score) {
-            if(proportion(town->population, scores, town->n_strategies, total_pop)) {
+            if(proportion(town->population, town->scores, town->n_strategies, total_pop)) {
                 perror("malloc");
                 exit(EXIT_FAILURE);
             }

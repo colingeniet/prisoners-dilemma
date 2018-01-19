@@ -11,7 +11,8 @@ struct town_descriptor {
     /** A boolean array. Indicates if a strategie is allowed. */
     char *allowed;
     int (*rewards)[2][2];               /**< The reward values. */
-    long *population;                   /**< The population for each strategie. */
+    long *population;                   /**< The population for each strategy. */
+    long *scores;                       /**< The score for each strategy. */
 };
 
 struct neighbour {

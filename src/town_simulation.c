@@ -196,9 +196,9 @@ int main(int argc, char **argv) {
         if(mon) {
             for(int i=0; i<town->n_strategies; i++) {
                 if(town->allowed[i]) {
-                    fprintf(mon, "%ld ", town->population[i]);
+                    fprintf(mon, "%ld %ld ", town->population[i], town->scores[i]);
                 } else {
-                    fprintf(mon, "0 ");
+                    fprintf(mon, "0 0 ");
                 }
             }
             fflush(mon);
@@ -206,7 +206,8 @@ int main(int argc, char **argv) {
             printf("step %d\n", step);
             for(int i=0; i<town->n_strategies; i++) {
                 if(!town->allowed[i]) continue;
-                printf("%s\t%ld\n", town->strategies[i].short_name, town->population[i]);
+                printf("%s\t%ld\t%ld\n", town->strategies[i].short_name,
+                       town->population[i], town->scores[i]);
             }
             printf("\n");
         }
