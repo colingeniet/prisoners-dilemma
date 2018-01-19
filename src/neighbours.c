@@ -143,11 +143,14 @@ int send_migrants(struct town_descriptor *town, struct neighbour *neighbour,
                         neighbour->migrants[strat]);
                 char *data = buffer;
                 int len = strlen(buffer);
-                do {
+                while(len > 0) {
                     int sent = write(sock, data, len);
-                    if(sent <= 0) return -1;
+                    if(sent <= 0) {
+                        sem_post(&neighbour->mig_lock);
+                        return -1;
+                    }
                     data += sent; len -= sent;
-                } while(len > 0);
+                }
                 neighbour->migrants[strat] = 0;
             }
         }

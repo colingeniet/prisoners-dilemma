@@ -23,11 +23,6 @@ struct mon_thread_data {
  * and update the population array */
 void *update_pop(void *_data) {
     struct mon_thread_data *data = _data;
-    /* the population array is only updated when all the values for
-     * one step have been received.
-     * This array is used to temporarely store them. */
-    long pop_tmp[N_STRATEGIES];
-    long score_tmp[N_STRATEGIES];
 
     // try to connect
     int fd = -1;
@@ -39,27 +34,25 @@ void *update_pop(void *_data) {
 
     while(1) {
         // wait for data
+        char strat_name[10];
+        long pop, score;
+        int ret = fscanf(stream, " %s %ld %ld", strat_name, &pop, &score);
+        if(ret == EOF) {
+            fprintf(stderr, "connection with %s closed.\n", data->host_name);
+            return NULL;
+        } else if(ret != 3) continue;
+
         for(int strat=0; strat<N_STRATEGIES; strat++) {
-            int ret = fscanf(stream, " %ld %ld", &pop_tmp[strat], &score_tmp[strat]);
-            if(ret <= 0) {
-                fprintf(stderr, "connection with %s closed.\n", data->host_name);
-                return NULL;
-            } else if(ret == 1) {
-                ret = fscanf(stream, " %ld", &score_tmp[strat]);
-                if(ret <= 0) {
-                    fprintf(stderr, "connection with %s closed.\n", data->host_name);
-                    return NULL;
-                }
+            if(!strcmp(strat_name, strategies[strat].very_short_name)) {
+                // update
+                sem_wait(data->pop_sem);
+                data->pop[strat] = pop;
+                data->score[strat] = score;
+                *data->modified = 1;
+                sem_post(data->pop_sem);
+                break;
             }
         }
-        // update
-        sem_wait(data->pop_sem);
-        for(int strat=0; strat<N_STRATEGIES; strat++) {
-            data->pop[strat] = pop_tmp[strat];
-            data->score[strat] = score_tmp[strat];
-        }
-        *data->modified = 1;
-        sem_post(data->pop_sem);
     }
 }
 

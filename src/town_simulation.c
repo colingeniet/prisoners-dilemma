@@ -196,7 +196,8 @@ int main(int argc, char **argv) {
         if(mon) {
             for(int i=0; i<town->n_strategies; i++) {
                 if(town->allowed[i]) {
-                    fprintf(mon, "%ld %ld ", town->population[i], town->scores[i]);
+                    fprintf(mon, "%s %ld %ld ",  town->strategies[i].very_short_name,
+                            town->population[i], town->scores[i]);
                 } else {
                     fprintf(mon, "0 0 ");
                 }
